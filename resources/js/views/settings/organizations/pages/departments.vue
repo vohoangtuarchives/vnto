@@ -1,0 +1,18 @@
+<template>
+  <Layout>
+    <PageHeader title="Department" pageTitle="Dashboard"/>
+
+  </Layout>
+
+</template>
+<script>
+import Layout from "@/layouts/main.vue";
+import PageHeader from "@/components/page-header";
+
+export default {
+  components: {
+    Layout,
+    PageHeader
+  },
+}
+</script>
