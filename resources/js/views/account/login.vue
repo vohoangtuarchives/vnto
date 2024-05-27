@@ -24,9 +24,14 @@ export default {
       isAuthError: false,
       processing: false,
       showInput:false,
+      crsf_token: ""
     };
   },
-
+mounted(){
+  axios.get('/api/sanctum/csrf-cookie').then(response => {
+    this.crsf_token =  response.data.csrf_token;
+  });
+},
   validations: {
     email: {
       required: helpers.withMessage("Email is required", required),
@@ -48,11 +53,17 @@ export default {
       this.authError = null;
       this.processing = true;
       this.isAuthError = false;
-      this.$store.dispatch("auth/login", {email:this.email,password:this.password}).then(
-        () => {
-           this.$router.push("/");
-           this.initializeData;
-           this.processing = false;
+      this.$store.dispatch("auth/login", {
+        _crsf: this.crsf_token,
+        email:this.email,password:this.password}).then(
+        (response) => {
+          console.log(response)
+          if(response.success){
+            this.$router.push("/");
+            this.initializeData;
+            this.processing = false;
+          }
+
         },
         (error) => {
           this.processing = false;   

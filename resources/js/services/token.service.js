@@ -17,8 +17,10 @@ class TokenService {
       localStorage.setItem("user", JSON.stringify(user));
     }
     setUserInfo(data,key) {
-     
-      let storage = JSON.parse(localStorage.getItem("user"));
+
+        console.log(data)
+
+      let storage = JSON.parse(localStorage.getItem("user") || {});
       
       if(!key){
           storage.user = data;
