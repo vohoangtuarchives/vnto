@@ -258,6 +258,7 @@ export default {
         return this.$store ? this.$store.state.layout.sidebarSize : {} || {};
       },
       set(type) {
+       
         return this.changeSidebarSize({
           sidebarSize: type,
         });
@@ -268,6 +269,7 @@ export default {
         return this.$store ? this.$store.state.layout.layoutWidth : {} || {};
       },
       set(width) {
+        
         if (width == "boxed") {
           this.changeLayoutWidth({ layoutWidth: width });
           this.changeSidebarSize({ sidebarSize: "sm-hover" });
@@ -476,6 +478,7 @@ export default {
       deep: true,
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
+      
           switch (newVal) {
             case "lg":
               document.documentElement.setAttribute("data-sidebar-size", "lg");

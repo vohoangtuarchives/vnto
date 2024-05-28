@@ -7,6 +7,8 @@ import {ModalSize} from "vue-bs-modal";
 import AddBranchModal from "@/views/settings/organizations/components/AddEditBranchModal.vue";
 
 import OrganizationService from "@/services/organization.service";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 
 
 
@@ -18,6 +20,8 @@ export default {
   components: {
     Layout,
     PageHeader,
+    DataTable,
+    Column
   },
   watch: {
     '$route.params.id': {
@@ -86,8 +90,10 @@ export default {
           });
 
     },
-    async deleteBranch(){
-
+    async deleteBranch(id){
+       OrganizationService.destroy(id).then(()=>{
+            this.getData(this.pagingate.current_page)
+        })
     },
     getStatusInfo(status) {
       const text = status ? this.$t('khadung') : this.$t('khongkhadung');
@@ -173,7 +179,7 @@ export default {
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                     <li><a class="dropdown-item"  @click="addBranchModal(data)" href="#">{{  $t('capnhat')}} </a></li>
-                    <li><a class="dropdown-item" @click="deleteBranch(item)">{{$t('xoa') }}</a></li>
+                    <li><a class="dropdown-item" @click="deleteBranch(data.id)">{{$t('xoa') }}</a></li>
                   </ul>
                 </div>
               </template>

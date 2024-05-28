@@ -170,7 +170,7 @@ export default {
         
     </div>
 
-    <BButton v-if="parseBoolean(edit)" class="input-group-text btn  btn-danger waves-effect" id="basic-addon2" @click="openModal">
+    <BButton v-if="parseBoolean(edit)" class="input-group-text btn  btn-danger waves-effect"  @click="openModal">
         <i class="ri-settings-4-line"></i></BButton>
        
 </div>

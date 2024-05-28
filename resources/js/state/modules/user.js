@@ -26,6 +26,9 @@ export default ({
         }
     },
     actions: {
+        canAccess(){
+            return false;
+        },
         async getUserList({ commit }) {
 
             const user = tokenService.getUser();

@@ -13,7 +13,7 @@ const setup = () => {
         config.headers["x-access-token"] = token;
       }
       config.timeout = timeout;
-      store.commit('layout/beginLoading'); // Call beginLoading mutation before starting the request
+      //store.commit('layout/beginLoading'); // Call beginLoading mutation before starting the request
       return config;
     },
     (error) => {
@@ -24,11 +24,11 @@ const setup = () => {
 
   axiosInstance.interceptors.response.use(
     (res) => {
-      store.commit('layout/endLoading'); // Call endLoading mutation when request is successful
+     // store.commit('layout/endLoading'); // Call endLoading mutation when request is successful
       return res;
     },
     async (err) => {
-      store.commit('layout/endLoading'); // Ensure to end loading even if request fails
+     // store.commit('layout/endLoading'); // Ensure to end loading even if request fails
       const originalConfig = err.config;
       if (originalConfig.url == "/auth/refresh") {
         return Promise.reject();

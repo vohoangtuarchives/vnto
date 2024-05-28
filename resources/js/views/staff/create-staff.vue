@@ -1,21 +1,46 @@
 <script>
 import Layout from "@/layouts/main.vue";
+import UserService from "@/services/user.service";
 import {
     mapGetters
 } from 'vuex';
 import PageHeader from "@/components/page-header";
+import Alert from "@/components/ui/alert";
 import SelectBoxOptions from "@/components/ui/select-box-options"
+import Dropdown from 'primevue/dropdown';
+import Avatar from "@/components/ui/avatar"
 import SelectAdministrative from "@/components/ui/select-administrative.vue"
 import Calendar from 'primevue/calendar';
 import CustomersService from "@/services/customers.service";
+import DepartmentService from "@/services/department.service";
+import PermissionService from "@/services/permission.service";
 import {
     ref
 } from "vue";
-
 export default {
     
     methods: {
-
+        onSubmit(){
+            
+         
+            this.alerts = null;
+           
+            
+            UserService.create({'data':this.data,'info':this.info}).then((data)=>{
+               
+                this.alerts_type = data.data.success==false?'error':'success';
+                if(data.data.success==false){
+                     this.alerts = data.data.errors;
+                     this.loading = false;
+                }
+                else{
+                    this.alerts = [this.$t(data.data.data)];
+                    setTimeout( () => this.$router.push({ name: 'staff.list'}), 5000);
+                    
+                }
+            })
+           
+        },
         getCustomersData(page) {
             CustomersService
                 .getCustomers(page)
@@ -25,7 +50,7 @@ export default {
 
                 })
         },
-        addCustomerModal() {},
+        
         
         changeNavLeft(idx) {
             this.activeNavLeft = idx;
@@ -40,31 +65,110 @@ export default {
             return false;
         },
         getAliasName(key) {
+            try{
             return this
                 .getData
                 .customer_alias[key];
+            }catch(_){
+                return [];
+            }
         },
         getGroupName(key) {
+            try{
             return this
                 .getData
                 .customer_group[key];
+            }catch(_){
+                return [];
+            }
         },
         getMedalName(key) {
+            try{
             return this
                 .getData
                 .customer_medal[key];
+            }catch(_){
+                return [];
+            }
         },
         hasCity(x){
-            return Object.keys(this.getCity(x)).length;
+            try{
+                return Object.keys(this.getCity(x)).length;
+            }catch(_){
+                return null;
+            }
+        },
+        onScroll() {
+        var scrollPos = window.scrollY;
+        var links = document.querySelectorAll('.nav-menu-staff a');   
+        links.forEach(function(link) {
+            var offh = document.getElementById("page-topbar").offsetHeight+10;
+            var target = document.querySelector(link.getAttribute('href'));
+            if (target.offsetTop-offh <= scrollPos && (target.offsetTop-offh + target.offsetHeight) > scrollPos) {
+            
+                links.forEach(function(link) {
+                    link.classList.remove('active');
+                });
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+        if(document.querySelectorAll('.nav-menu-staff a.active').length==0 && document.querySelectorAll('.nav-menu-staff a').length){
+            document.querySelectorAll('.nav-menu-staff a')[0].classList.add('active');
         }
-
+       
     },
+    async fetchData() {
+  try {
+      
+        const [departmentResponse, rolesResponse] = await Promise.all([
+            DepartmentService.getPivotDepartmentJobPosition({ status: 1, all: 1}),
+            PermissionService.getGroups({ status: 1, all: 1, permission: 0, job: 1 })
+            ]);
+
+
+
+            console.error("dep is ",departmentResponse);
+            console.error("role is ",rolesResponse);
+
+
+
+            // Process department data
+            const departmentData = departmentResponse.data.data;
+            rolesResponse
+            if (departmentData.length > 0) {
+            departmentData.forEach(key => {
+                this.api.departments.push({name: key.name, code: key.id ,job:key.job_position})             
+            });
+            }
+
+    }
+ catch (error) {
+    console.error(error);
+  }
+},
+},
+
+   
     watch: {
+        
         selectedProvince: {
         handler() {
             this.fullAddress = this.fullAddressComputed;
         },
         immediate: true // Cập nhật ngay khi selectedProvince thay đổi
+        },
+        'info.work.id_departments':{
+            handler(newValue, oldValue) {
+                if(newValue!=oldValue){
+                    this.api.vitricongviec = newValue.job;
+                    console.log(this.api.vitricongviec);
+                }
+                
+               
+            },
+            immediate: true // Cập nhật ngay khi selectedDistrict thay đổi    
         },
         selectedDistrict: {
         handler() {
@@ -74,7 +178,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('data', ['getLocation', 'getData','getCity','getCountry','getCountryById']),
+        ...mapGetters('data', ['getLocation', 'getData','getCity','getCountry','getCountryById','getCountry2','getSetting']),
         getDiachiHKTT(){
           
             let address=this.info.location.address!=undefined ? this.info.location.address : '';
@@ -112,48 +216,45 @@ export default {
         }
         
     },
-    async mounted() {
-
-     
-    function onScroll() {
-        var scrollPos = window.scrollY;
-        var links = document.querySelectorAll('.nav-menu-staff a');   
-        links.forEach(function(link) {
-            var offh = document.getElementById("page-topbar").offsetHeight+10;
-            var target = document.querySelector(link.getAttribute('href'));
-            if (target.offsetTop-offh <= scrollPos && (target.offsetTop-offh + target.offsetHeight) > scrollPos) {
-            
-                links.forEach(function(link) {
-                    link.classList.remove('active');
-                });
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+    created(){
+        //let code = this.getSetting("manv");
+        let seft = this;
+       
+        
+        this.$store.dispatch('data/getSetting').then(() => {
+            seft.data.code = this.generateCode(this.$store.getters['data/getSetting']("manv"));
         });
-        if(document.querySelectorAll('.nav-menu-staff a.active').length==0){
-            document.querySelectorAll('.nav-menu-staff a')[0].classList.add('active');
-        }
-    }
-    document.addEventListener('scroll', onScroll);
+        //console.error(code);
+    },
+    async mounted() {
+        this.$store.commit('layout/SET_MENU', 'staff/list');
+        
+        this.fetchData();
+       
+     
+
+        document.addEventListener('scroll', this.onScroll);
     
 
     },
     data() {
+        
         return {
-
+            api:{
+                departments:ref([]),
+                vitricongviec:ref([]),
+            },            
             navLeft: [
                 this.$t('thongtincoban'), this.$t('thongtincoban'), this.$t('thongtincongviec'),this.$t('thongtintaikhoan')
             ],
+            loading:false,
             activeNavLeft: 0,
-            date: ref(),
-            optionsSource: [],
-            customerSourceDataFilter: ref([]),
+            alerts:ref(),
+            alerts_type:'error',
+          
 
-            pagingate: ref({}),
-            modalShow: false,
-            loadSuccess: false,
-            email:null,
+      
+            
             info:{
                 baohiem:{},
                 main:{},
@@ -164,10 +265,12 @@ export default {
                 work:{}
             },
             data: {
-                birthdate:null,
-                avatar: null,
-                tthonnhan: 'bb30f461-3bf5-40c0-847c-f71ac7cc3f5a',
-                isAvaiable:false,
+                allow_login:false,
+                name:'',
+                birthday:null,
+                password:'',
+                password_confirmation:'',
+                code:'',
             }
 
         };
@@ -183,14 +286,20 @@ export default {
         PageHeader,
         SelectBoxOptions,
         Calendar,
-        SelectAdministrative
+        SelectAdministrative,
+        Alert,
+        Avatar,
+        Dropdown
+        
+      
     }
 };
 </script>
 <template>
 <Layout>
-    <PageHeader title="t-khachhang" pageTitle="Dashboard" />
-
+    <Alert v-if="alerts" :errors="alerts" :type="alerts_type" />
+    <form @submit.prevent="onSubmit">
+    <PageHeader title="t-khachhang" pageTitle="Dashboard" class="sticky-nav" />
     <div class=" d-lg-flex gap-1 mx-n4 mt-n4 p-1">
         <div class="email-menu-sidebar">
             <div class="p-4 d-flex flex-column h-100">
@@ -210,27 +319,18 @@ export default {
         <!-- end email-menu-sidebar -->
 
         <div class="w-100">
-        <form prevent.submit="onSubmit">
-
+        
+            
+           
+           
+                
+          
             <BCol md="12">
                 <BCard class="mb-1 w-100">
-                    <div class="profile-user position-relative d-inline-block mx-auto ">
-                        <div class="avatar-wrap">
-                            <i class=" ri-user-line"></i>
-                            <!-- <img src="assets/images/users/avatar-1.jpg" class="rounded-circle avatar-xl img-thumbnail user-profile-image" alt="user-profile-image"> -->
-                        </div>
-                        <div class="avatar-xs p-0 rounded-circle profile-photo-edit">
-                            <input id="profile-img-file-input" ref="avatar" type="file" class="profile-img-file-input">
-                            <label for="profile-img-file-input" class="profile-photo-edit avatar-xs">
-                                <span class="avatar-title rounded-circle bg-light text-body">
-                                    <i class="ri-camera-fill"></i>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
+                    <Avatar v-model="data.avatar"/>
                 </BCard>
             </BCol>
-
+           
             <BCol md="12">
               
                 <BCard no-body class="mb-2" id="block_0" ref="block_0" headerClass="primary">
@@ -241,53 +341,58 @@ export default {
 
                         <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('thongtinchung') }}</h4>
                         <BRow>
+                            
                             <BCol col="12" md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('manhanvien')" >
-                                    <BFormInput v-model="data.code" />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('manhanvien')" >
+                                    <BFormInput v-model="data.code" disabled />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('hovaten')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('hovaten')" >
                                     <BFormInput v-model="data.name"  />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('gioitinh')" >
-                                    <BFormInput v-model="info.main.gender"  />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('gioitinh')" >
+                      
+                                    <Dropdown  v-model="info.main.gender" :options="getGender(false)" optionLabel="name" :placeholder="$t('chon')" class="w-100 " />
+
+
+
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaysinh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaysinh')" >
                                    
-                                    <Calendar v-model="data.birthdate" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
+                                    <Calendar v-model="data.birthday" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noisinh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noisinh')" >
                                     <BFormInput v-model="info.main.noisinh" />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nguyenquan')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nguyenquan')" >
                                     <BFormInput v-model="info.main.nguyenquan"  />
                                 </BFormGroup>
 
                             </BCol>
 
                             <BCol md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhtranghonnhan')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhtranghonnhan')" >
                                     <SelectBoxOptions type="tthonnhan" search="false" v-model="info.main.tthonnhan"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('mstcanhan')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('mstcanhan')" >
                                     <BFormInput v-model="info.main.mstcanhan" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thanhphangiadinh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thanhphangiadinh')" >
                                     <SelectBoxOptions type="tpgiadinh" search="false" v-model="info.main.tpgiadinh"   />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thanhphanbanthan')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thanhphanbanthan')" >
                                     <SelectBoxOptions type="tpbanthan" search="false" v-model="info.main.tpbanthan"   />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dantoc')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dantoc')" >
                                     <SelectBoxOptions type="dantoc" v-model="info.main.dantoc"   edit="false"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tongiao')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tongiao')" >
                                     <SelectBoxOptions type="tongiao" v-model="info.main.tongiao" search="false" edit="false"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quoctich')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quoctich')" >
                                     <SelectBoxOptions type="quoctich" v-model="info.main.quoctich"   edit="false"/>
                                 </BFormGroup>
 
@@ -297,22 +402,22 @@ export default {
                         <h4 class="mb-3 text-uppercase fw-semibold fs-5 mt-3 mt-md-4">{{ $t('cmnd-cancuoc-hochieu')}}</h4>
                         <BRow>
                             <BCol col="12" md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('loaigiayto')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('loaigiayto')" >
                                     <SelectBoxOptions type="loaigiayto" search="false" edit="false" v-model="info.main.loaigiayto" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('socmndcccd')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('socmndcccd')" >
                                     <BFormInput v-model="info.main.cccd" />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaycapccccd')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaycapccccd')" >
                                     <Calendar v-model="info.main.ngaycapcccd" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noicapccccd')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noicapccccd')" >
                                     <BFormInput v-model="info.main.noicapcccd" />
                                    
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhethanccccd')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhethanccccd')" >
                                     <Calendar v-model="info.ngayhethancccd" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
                                
@@ -320,18 +425,18 @@ export default {
                             </BCol>
 
                             <BCol md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sohochieu')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sohochieu')" >
                                     <BFormInput v-model="info.main.sohochieu"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaycaphochieu')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaycaphochieu')" >
                                     <Calendar v-model="info.main.ngaycaphochieu" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
                                 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noicaphochieu')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noicaphochieu')" >
                                     <SelectAdministrative v-model="info.main.noicaphochieu" type="country"  />
                                 </BFormGroup>
                                 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhethanchochieu')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhethanchochieu')" >
                                     <Calendar v-model="info.main.ngayhethanchochieu" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
 
@@ -353,17 +458,17 @@ export default {
                         <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('phoneemailkhac') }}</h4>
                         <BRow>
                             <BCol col="12" md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtdidong')" >
-                                    <BFormInput v-model="data.dtdidong" />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtdidong')" >
+                                    <BFormInput v-model="data.phone" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtcongty')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtcongty')" >
                                     <BFormInput v-model="info.contact.dtcongty" />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtnharieng')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtnharieng')" >
                                     <BFormInput  v-model="info.contact.dtnharieng" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtkhac')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtkhac')" >
                                     <BFormInput v-model="info.contact.dtkhac" />
                                 </BFormGroup>
 
@@ -375,18 +480,18 @@ export default {
 
                             <BCol md="6">
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('emailcongty')" >
-                                    <BFormInput type="email" v-model="info.contact.emailcongty" />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('emailcongty')" >
+                                    <BFormInput type="email" v-model="data.email" />
                                 </BFormGroup>
 
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('emailcanhan')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('emailcanhan')" >
                                     <BFormInput type="email" v-model="info.contact.emailcanhan" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" label="Facebook" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" label="Facebook" >
                                     <BFormInput v-model="info.contact.facebook" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" label="Skype" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" label="Skype" >
                                     <BFormInput v-model="info.contact.skype" />
                                 </BFormGroup>
 
@@ -398,23 +503,23 @@ export default {
                         <BRow>
                             <BCol col="12" md="6">
                                 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quocgia')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quocgia')" >
                                     <SelectAdministrative v-model="info.location.country" type="country"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhthanh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhthanh')" >
                                     <SelectAdministrative v-if="hasCity(info.location.country)" v-model="info.location.city" :parent="info.location.country" type="city"  />
                                     <BFormInput v-if="!hasCity(info.location.country)"  />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhuyen')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhuyen')" >
                                     <SelectAdministrative v-if="hasCity(info.location.country)" v-model="info.location.district" :parent="info.location.city" type="district"  />
-                                    <BFormInput v-if="!hasCity(info.hktt_country)"  />
+                                    <BFormInput v-if="!hasCity(info.location.country)"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('phuongxa')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('phuongxa')" >
                                     <SelectAdministrative v-if="hasCity(info.location.country)" v-model="info.location.wards" :parent="info.location.district" type="wards"  />
                                     <BFormInput v-if="!hasCity(info.location.country)"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
                                   
                                     <BFormInput v-model="info.location.address"  />
                                 </BFormGroup>
@@ -423,19 +528,19 @@ export default {
                             </BCol>
 
                             <BCol md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosohokhau')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosohokhau')" >
                                     <BFormInput v-model="info.location.sosohokhau"  />
                                 </BFormGroup>
                                 
-                                  <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('masohogiadinh')" >
+                                  <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('masohogiadinh')" >
                                   
                                   <BFormInput v-model="info.location.masohogiadinh"  />
                               </BFormGroup>
-                              <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chuho')" >
+                              <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chuho')" >
                                   
                                   <BFormInput  />
                               </BFormGroup>
-                              <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachihktt')" >
+                              <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachihktt')" >
                                   
                                   <BFormInput disabled v-model="getDiachiHKTT"/>
                               </BFormGroup>
@@ -450,7 +555,7 @@ export default {
                         <BRow>
                             <BCol col="12" md="6">
                                 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7 " :label="$t('gionghktt')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7 " :label="$t('gionghktt')" >
                                     <BFormCheckbox
                                     id="checkbox-1"
                                     v-model="info.current_location.same"
@@ -463,16 +568,16 @@ export default {
                                     </BFormCheckbox>
 
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quocgia')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quocgia')" >
                                     <SelectAdministrative :disabled="info.current_location.same" v-model="info.current_location.country" type="country"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhthanh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhthanh')" >
                                     <SelectAdministrative :disabled="info.current_location.same" v-if="hasCity(info.current_location.country)" v-model="info.current_location.city" :parent="info.current_location.country" type="city"   />
                                     <BFormInput :disabled="info.current_location.same" v-if="!hasCity(info.current_location.country)"  />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhuyen')" >
-                                    <SelectAdministrative :disabled="info.same" v-if="hasCity(info.current_location.country)" v-model="info.current_location.district" :parent="info.current_location.city" type="district"  />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhuyen')" >
+                                    <SelectAdministrative :disabled="info.current_location.same" v-if="hasCity(info.current_location.country)" v-model="info.current_location.district" :parent="info.current_location.city" type="district"  />
                                     <BFormInput :disabled="info.current_location.same" v-model="info.current_location.district" v-if="!hasCity(info.current_location.country)"  />
                                 </BFormGroup>
                                
@@ -481,15 +586,15 @@ export default {
 
                             <BCol md="6">
                                
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('phuongxa')" >
-                                    <SelectAdministrative :disabled="info.same" v-if="hasCity(info.current_location.country)" v-model="info.current_location.wards" :parent="info.current_location.district" type="wards"  />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('phuongxa')" >
+                                    <SelectAdministrative :disabled="info.current_location.same" v-if="hasCity(info.current_location.country)" v-model="info.current_location.wards" :parent="info.current_location.district" type="wards"  />
                                     <BFormInput :disabled="info.current_location.same" v-if="!hasCity(info.current_location.country)" v-model="info.current_location.wards" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4"  content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4"  content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
                                   
                                     <BFormInput :disabled="info.current_location.same" v-model="info.current_location.address"  />
                                 </BFormGroup>
-                              <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachicoht')" >
+                              <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachicoht')" >
                                   
                                   <BFormInput disabled  />
                               </BFormGroup>
@@ -510,15 +615,15 @@ export default {
                             <BCol col="12" md="6">
                                 
                                
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('hovaten')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('hovaten')" >
                                    
                                     <BFormInput v-model="info.hotcontact.name"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhe')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanhe')" >
                                     
                                     <SelectBoxOptions type="quanhe" search="false" v-model="info.hotcontact.tthonnhan"  edit="true"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtdidong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtdidong')" >
                                     
                                     <BFormInput v-model="info.hotcontact.phone" />
                                 </BFormGroup>
@@ -526,15 +631,15 @@ export default {
 
                             <BCol md="6">
                                
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtnr')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('dtnr')" >
                                     
                                     <BFormInput v-model="info.hotcontact.dtnr"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('email')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('email')" >
                                     
                                     <BFormInput type="email" v-model="info.hotcontact.email"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diachi')" >
                                     
                                     <BFormInput v-model="info.hotcontact.diachi"/>
                                 </BFormGroup>
@@ -555,31 +660,37 @@ export default {
                         <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('thongtinnhanvien') }}</h4>
                         <BRow>
                             <BCol col="12" md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('vitricongviec')" >
-                                    <SelectBoxOptions type="vitricongviec" search="false" edit="true" v-model="info.work.vitricongviec"  />
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('phongban')" >
+                                    
+                                    <Dropdown v-model="info.work.id_departments" :options="api.departments" optionLabel="name" :placeholder="this.$t('chon')" checkmark :highlightOnSelect="false" class="w-100" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chucdanh')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('vitricongviec')" >
+                                    <Dropdown v-model="info.work.vitricongviec" :options="api.vitricongviec" optionLabel="name" :placeholder="this.$t('chon')" checkmark :highlightOnSelect="false" class="w-100" />
+
+                                  
+                                </BFormGroup>
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chucdanh')" >
                                     <SelectBoxOptions type="chucdanh" search="false" edit="true" v-model="info.work.chucdanh"  />
                                 </BFormGroup>
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('cap')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('cap')" >
                                     <SelectBoxOptions type="cap" search="false" edit="true" v-model="info.work.cap"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('bac')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('bac')" >
                                     <SelectBoxOptions type="bac" search="false" edit="true" v-model="info.work.bac"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('trangthailaodong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('trangthailaodong')" >
                                     <SelectBoxOptions type="trangthailaodong" search="false" edit="true" v-model="info.work.trangthailaodong"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhchatlaodong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhchatlaodong')" >
                                     <SelectBoxOptions type="tinhchatlaodong" search="false" edit="true" v-model="info.work.tinhchatlaodong"  />
                                 </BFormGroup>
 
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diadiemlaodong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('diadiemlaodong')" >
                                     <BFormInput v-model="info.work.address" />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosoquanlylaodong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosoquanlylaodong')" >
                                     <BFormInput  v-model="info.work.soquanly"/>
                                 </BFormGroup>
 
@@ -591,28 +702,28 @@ export default {
 
                             <BCol md="6">
 
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('loaihopdong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('loaihopdong')" >
                                     <SelectBoxOptions type="loaihopdong" search="false" edit="true" v-model="info.loaihopdong"  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('machamcong')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('machamcong')" >
                                     <BFormInput  />
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhocviec')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngayhocviec')" >
                                     <Calendar v-model="info.ngayhocviec" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaythuviec')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaythuviec')" >
                                     <Calendar v-model="info.ngaythuviec" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaychinhthuc')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaychinhthuc')" >
                                     <Calendar v-model="info.ngaychinhthuc" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaynghihuudukien')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaynghihuudukien')" >
                                     <Calendar v-model="info.ngaynghihuudukien" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanlytructiep')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanlytructiep')" >
                                     <!-- <SelectBoxOptions type="loaihopdong" search="false" edit="true" v-model="data.quanlytructiep"  /> -->
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanlygiantiep')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('quanlygiantiep')" >
                                     <!-- <SelectBoxOptions type="loaihopdong" search="false" edit="true" v-model="data.tinhchatlaodong"  /> -->
                                 </BFormGroup>
                             </BCol>
@@ -630,11 +741,11 @@ export default {
                     <BRow>
                         <BCol col="12" md="6">
                             
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nguoiduyet')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nguoiduyet')" >
                                 <!-- <SelectBoxOptions type="chucdanh" search="false" edit="true" v-model="data.chucdanh"  /> -->
                             </BFormGroup>
 
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ykiendonggop')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ykiendonggop')" >
                                 <BFormTextarea
                                
                                 v-model="info.nghiviec_ykiendonggop"
@@ -649,10 +760,10 @@ export default {
 
                         <BCol md="6">
 
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('lydonghi')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('lydonghi')" >
                                 <SelectBoxOptions type="lydonghi" search="false" edit="true" v-model="info.lydonghi"  />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaynghiviec')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaynghiviec')" >
                                 <Calendar v-model="info.ngaynghiviec" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                             </BFormGroup>
                            
@@ -663,13 +774,13 @@ export default {
                     <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('thongtinluong') }}</h4>
                     <BRow>
                         <BCol col="12" md="6">
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('bacluong')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('bacluong')" >
                                 <BFormInput type="number" v-model="info.bacluong" />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('luongcoban')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('luongcoban')" >
                                 <BFormInput  v-currency v-model="info.lungcoban" />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('luongdongbhxh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('luongdongbhxh')" >
                                 <BFormInput  v-currency v-model="info.luongdongbhxh" />
                             </BFormGroup>
                      
@@ -678,13 +789,13 @@ export default {
 
                         <BCol md="6">
 
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tongluong')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tongluong')" >
                                 <BFormInput  v-currency disabled v-model="info.tongluong"/>
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tknganhang')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tknganhang')" >
                                 <BFormInput v-model="info.tknganhang" />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nganhang')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nganhang')" >
                                 <BFormInput v-model="info.nganhang"/>
                             </BFormGroup>
                         </BCol>
@@ -696,19 +807,19 @@ export default {
                     <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('thongtinbaohiem') }}</h4>
                     <BRow>
                         <BCol col="12" md="6">
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaythamgiabh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('ngaythamgiabh')" >
                                 <Calendar v-model="info.baohiem.ngaythamgia" showIcon iconDisplay="input"  class="w-100 cursor-pointer"/>
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tiledongbh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tiledongbh')" >
                                 <BFormInput v-model="info.baohiem.tiledong" type="number"/>
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosobhxh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sosobhxh')" >
                                 <BFormInput v-model="info.baohiem.soso" />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('masobhxh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('masobhxh')" >
                                 <BFormInput v-model="info.baohiem.maso"/>
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thamgiabhxh')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('thamgiabhxh')" >
                                 <SelectBoxOptions type="thamgiabhxh" search="false" edit="true" v-model="info.baohiem.thamgia"  />
                             </BFormGroup>
 
@@ -716,13 +827,13 @@ export default {
 
                         <BCol md="6">
 
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhcap')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('tinhcap')" >
                                 <SelectAdministrative  v-model="info.baohiem.city" parent="1" type="city"  />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sothebhyt')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('sothebhyt')" >
                                 <BFormInput v-model="info.baohiem.sothe"  />
                             </BFormGroup>
-                            <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noidkkcb')" >
+                            <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('noidkkcb')" >
                                 <BFormInput v-model="info.baohiem.noidk"/>
                             </BFormGroup>
                         </BCol>
@@ -752,40 +863,32 @@ export default {
                        
                         <BRow>
                             <BCol col="12" md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chophepdangnhap')" >
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('chophepdangnhap')" >
                                     <BFormCheckbox
                                     id="checkbox-1"
                                    
                                     name="checkbox-1"
                                     value="accepted"
                                     class="mt-2"
-                                    v-model="data.isAvaiable"
+                                    v-model="data.allow_login"
                                     
                                     >
                                     
                                     </BFormCheckbox>
                                 </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('emaildangnhap')" >
-                                    <BFormInput type="email" :disabled="!data.isAvaiable" v-model="email"/>
-                                </BFormGroup>
-
+                               
                                
 
 
-                                
-
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('matkhau')" >
+                                    <BFormInput type="password" :disabled="!data.allow_login" v-model="data.password" />
+                                </BFormGroup>
+                                <BFormGroup class="mb-3"  label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nhaplaimatkhau')" >
+                                    <BFormInput type="password" :disabled="!data.allow_login" v-model="data.password_confirmation" />
+                                </BFormGroup>
 
                             </BCol>
 
-                            <BCol md="6">
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('matkhau')" >
-                                    <BFormInput type="password" :disabled="!data.isAvaiable" v-model="data.password" />
-                                </BFormGroup>
-                                <BFormGroup class="mb-3" id="fieldset-horizontal" label-cols-sm="4" label-cols-lg="4" content-cols-sm content-cols-lg="7" :label="$t('nhaplaimatkhau')" >
-                                    <BFormInput type="password" :disabled="!data.isAvaiable" v-model="data.repeatpassword" />
-                                </BFormGroup>
-                                
-                            </BCol>
 
                         </BRow>
                      
@@ -794,7 +897,7 @@ export default {
                         
                     </BCardBody>
 
-                    <BCardBody v-if="data.isAvaiable">
+                    <BCardBody v-if="data.allow_login">
 
                     <h4 class="mb-3 mb-md-4 text-uppercase fw-semibold fs-5">{{ $t('thongtinquyen') }}</h4>
                     <BRow>
@@ -853,14 +956,20 @@ export default {
 
                     </BCardBody>
                 </BCard>
-                
+              
             </BCol>
-        </form>
+            <div class="text-star sticky-footer p-3 bg-danger">
+                    <BButton class="btn btn-primary"  type="submit">Tạo</BButton>
+            </div>    
+      
+          
         </div>
 
     </div>
 
+    </form>
 </Layout>
+
 </template>
 
 <style>

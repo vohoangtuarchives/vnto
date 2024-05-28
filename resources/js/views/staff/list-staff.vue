@@ -3,51 +3,28 @@ import Layout from "@/layouts/main.vue";
 import {
     mapGetters
 } from 'vuex';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
+
 import PageHeader from "@/components/page-header";
-// import {
-//     ModalSize
-// } from "vue-bs-modal";
-import CustomersService from "@/services/customers.service";
-import SettingService from "@/services/setting.service";
+import UserService from "@/services/user.service";
+
+//import SettingService from "@/services/setting.service";
 import {
     ref
 } from "vue";
 import {
     useRoute
 } from 'vue-router';
-export default {
-    watch: {
 
-        // 'currentPage': {
-        //     handler(newId, oldId) {
-        //         if (newId != oldId && oldId != undefined) {
-        //             this
-        //                 .$router
-        //                 .replace({
-        //                     query: {
-        //                         page: newId
-        //                     }
-        //                 })
-        //             this.getData(newId);
-        //         }
-        //     },
-        //     immediate: true // Load data initially if id exists
-        // }
-    },
+
+
+export default {
+   
     methods: {
        
-        getCustomersData(page) {
-            CustomersService
-                .getCustomers(page)
-                .then((response) => {
-                    this.data = response.data.data.data;
-                    this.pagingate = response.data.data;
-                    this.currentPage = this.pagingate.current_page;
-                })
-        },
-        addCustomerModal() {
-           
-        },
+       
         getStatusInfo(status) {
             const text = status ?
                 this.$t('khadung') :
@@ -77,17 +54,62 @@ export default {
             let foundItem = this.customerSourceDataFilter.type.find(item => item.id === key);
             return foundItem ? foundItem.name : null;
         },
+        getUserGender(gender){
+            let result = '';
+            try{
+                result = this.getGender(gender);
+            }catch($e){
+                result = '';
+            }
+            return result;
+        },
+        async getUsers(){
+            this.addLoading(this.$refs.table_list);
+            
+            const response = await UserService.getList();
+            
+             if(response.data.success){
+                
+                if(response.data.data.length){
+                    this.customers = response.data.data;
+                    
+                    
+                }
+             }
+
+             this.removeLoading(this.$refs.table_list);
+            
+        }
     },
     computed: {
         ...mapGetters('data', ['getLocation', 'getData'])
     },
     async mounted() {
-        this.customerSourceDataFilter = await SettingService.getCustomerData();
-        var self = this;
-        this.customerSourceDataFilter.source.map(function(value) {
-            self.optionsSource.push({id:value.id,text:value.name});
-        });
-        this.getCustomersData();
+        
+  
+        this.getUsers();
+
+                
+        const initFilters = () => {
+            this.filters.value = {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                'country.name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                representative: { value: null, matchMode: FilterMatchMode.IN },
+                date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+                balance: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
+                verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+            };
+        };
+
+        initFilters();
+
+
+
+
+
     },
     data() {
         return {
@@ -99,12 +121,45 @@ export default {
             pagingate: ref({}),
             modalShow: false,
             loadSuccess: false,
-            titleFormGroup: this.$t('t-themmoidanhmuc')
+            titleFormGroup: this.$t('t-themmoidanhmuc'),
+
+            
+            selectedCustomers: ref(),
+            customers: ref(),
+            filters: {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                representative: { value: null, matchMode: FilterMatchMode.IN },
+                status: { value: null, matchMode: FilterMatchMode.EQUALS },
+                verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+            },
+            representatives: [
+                { name: 'Amy Elsner', image: 'amyelsner.png' },
+                { name: 'Anna Fali', image: 'annafali.png' },
+                { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+                { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+                { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+                { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+                { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+                { name: 'Onyama Limba', image: 'onyamalimba.png' },
+                { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+                { name: 'XuXue Feng', image: 'xuxuefeng.png' }
+            ],
+            statuses: ['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal'],
+            loading: true,
+
+
+
+
+
         };
     },
     setup() {
         const route = useRoute();
         const currentPage = ref(parseInt(route.query.page) || 1);
+        
+        
 
         return {
             currentPage
@@ -112,7 +167,10 @@ export default {
     },
     components: {
         Layout,
-        PageHeader
+        PageHeader,
+        DataTable,
+        Column,
+
     }
 };
 </script>
@@ -188,59 +246,102 @@ export default {
                     </div>
                 </BCardHeader>
                 <BCardBody>
-                    <div class="table- table-card ">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>{{ $t('makhachhang') }}</th>
-                                    <th>{{$t('hoten')}}</th>
-                                    <th>{{$t('lienhe')}}</th>
-                                    <th>{{$t('phannhom')}}</th>
-                                    <th>{{$t('dienthoai')}}</th>
-                                    <th>{{$t('phanhang')}}</th>
-                                    <th>{{$t('loaikhach')}}</th>
-                                    <th>{{$t('nguon')}}</th>
-                                    <th>{{$t('nvphutrach')}}</th>
-                                    <th>{{$t('tongdon')}}</th>
-                                    <th>{{$t('doanhthu')}}</th>
-                                    <th width="70px" class="middle text-end">{{$t('tacvu')}}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in data" v-bind:key="item.id">
-                                    <td><span class="fw-medium">{{ item.code}}</span></td>
-                                    <td class="fw-medium">({{ getAliasName(item.alias) }}) {{ item.name }}</td>
-                                    <td>{{ dateFormat(item.created_at) }}</td>
-                                    <td>{{ getGroupName(item.group_id) }}</td>
-                                    <td>{{ item.phone }}</td>
-                                    <td>{{ getMedalName(item.medal_id)}}</td>
-                                    <td>{{ getTypeName(item.type_id) }}</td>
-                                    <td>{{ getSourceName(item.source_id) }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                  
-                                    
-                                    
-                                    <td class="middle text-end">
-                                        <div class="dropdown">
-                                            <a href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ri-more-2-fill"></i>
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                <li>
-                                                    <a class="dropdown-item" @click="addSourceModal(item)" href="#">{{$t('capnhat')}}</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">{{$t('xoa')}}</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <BPagination v-model="currentPage" :total-rows="pagingate.last_page" :per-page="1" />
+                    <div class="table-card" ref="table_list">
+                        <DataTable v-model:filters="filters" v-model:selection="selectedCustomers" :value="customers" paginator :rows="10" dataKey="id" filterDisplay="menu"
+            :globalFilterFields="['name', 'country.name', 'representative.name', 'balance', 'status']">
+            <template #header>
+                <div class="flex justify-content-between">
+                    <Button type="button" icon="pi pi-filter-slash" label="Clear" outlined @click="clearFilter()" />
+                    <IconField iconPosition="left">
+                        <InputIcon>
+                            <i class="pi pi-search" />
+                        </InputIcon>
+                        <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                    </IconField>
+                </div>
+            </template>
+            <template #empty> No customers found. </template>
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+            <Column field="name" :header="$t('manhanvien')" sortable style="min-width: 5rem">
+                <template #body="{ data }">
+                    {{ data.code }}
+                </template>
+                
+            </Column>
+            <Column :header="$t('hovaten')" sortable sortField="country.name" filterField="country.name" style="min-width: 14rem">
+                <template #body="{ data }">
+                   
+                        <span>{{ data.name }}</span>
+                   
+                </template>
+            </Column>
+            <Column field="name" :header="$t('gioitinh')" sortable >
+                <template #body="{ data }">
+                    {{ checkVariable("info.main.gender",data)?getUserGender(data.info.main.gender):'' }}
+                </template>
+                
+            </Column>
+            <Column field="name" :header="$t('ngaysinh')" sortable >
+                <template #body="{ data }">
+                    {{ data.birthday }}
+                </template>
+                
+            </Column>
+            <Column field="name" :header="$t('dienthoai')" sortable >
+                <template #body="{ data }">
+                    {{ data.phone }}
+                </template>
+                
+            </Column>
+            <Column field="name" header="Email" sortable >
+                <template #body="{ data }">
+                    {{ data.email }}
+                </template>
+                
+            </Column>
+            <Column field="name" :header="$t('vitricongviec')" sortable >
+                <template #body="{ data }">
+                    {{ data.name }}
+                </template>
+                
+            </Column>
+            <Column field="name" :header="$t('donvicongtac')" sortable >
+                <template #body="{ data }">
+                    {{ data.name }}
+                </template>
+                
+            </Column>
+            <Column field="name" :header="$t('ngaythuviec')" sortable >
+                <template #body="{ data }">
+                    {{ data.name }}
+                </template>
+                
+            </Column>
+            <Column  style="width: 30px">
+              <template #body="{data}" >
+                <div class="dropdown">
+                  <a href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="ri-more-2-fill"></i>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li>
+                        <router-link :to="{'name':'information.add.job.description' ,params:{id:data.id} }" class="dropdown-item">
+                            <i class="ri-file-edit-fill align-bottom me-1 text-secondary "></i>{{$t('capnhat-mota-congviec')}}
+                        </router-link>
+                    </li>
+                    <!-- <li><a class="dropdown-item btn" @click="deleteItem(data.id)"><i class="ri-delete-bin-line me-1 text-danger "></i>{{$t('xoa')}}</a></li> -->
+                  </ul>
+                </div>
+              </template>
+            </Column>
+        </DataTable>
+
+
+<Style>
+    style="min-width: 14rem"
+</Style>
+
+
                     </div>
                 </BCardBody>
             </BCard>

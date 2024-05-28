@@ -22,9 +22,9 @@
                     .data.length});
                         const seft = this;
                         setTimeout(function(){
-                    seft.$refs.input.focus(); 
+                            seft.$refs.input.focus(); 
                  
-                },10)
+                        },300)
             },
             close() {
                 this
@@ -155,7 +155,7 @@
                                         <div class="input-group mb-2 ">
 
                                             <span class="input-group-text">
-                                                <input
+                                                <input tabindex="-1"
                                                     :checked="element.status === 1"
                                                     class="form-check-input mt-0"
                                                     type="checkbox"
@@ -163,13 +163,13 @@
                                                     ></span>
                                                 <input type="text"  ref="input" v-model="element.name" :disabled="element.is_default" class="form-control"/>
                                                 <span class="input-group-text p-1">
-                                                    <BButton :disabled="element.is_default" class="bg-transparent border-0 text-black btn p-0 px-2" @click="removeAt(index)">
+                                                    <BButton :disabled="element.is_default" class="bg-transparent border-0 text-black btn p-0 px-2" @click="removeAt(index)" tabindex="-1">
                                                         <i class="ri-subtract-line align-bottom me-1"></i>
                                                     </BButton>
 
                                                 </span>
                                                 <span class="input-group-text p-1 handle">
-                                                    <BButton class="bg-transparent border-0 text-black btn p-0 px-2 ">
+                                                    <BButton class="bg-transparent border-0 text-black btn p-0 px-2 " tabindex="-1"> 
                                                         <i class="ri-drag-move-line align-bottom me-1"></i>
                                                     </BButton>
                                                 </span>

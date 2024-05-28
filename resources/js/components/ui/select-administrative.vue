@@ -42,6 +42,10 @@
             }
         },
         async created()  {  
+            
+
+        },
+        async mounted() {
             if(this.type=="country"){
                 try{
                 let tmp = await this.getCountry;
@@ -53,9 +57,6 @@
                 console.error(error);
             }
             }
-
-        },
-        async mounted() {
             if(this.type!="country"){
                 this.loadData(this.parent);
             }

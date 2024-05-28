@@ -1,8 +1,160 @@
 import moment from "moment";
 import appConfig from "@/configs/app.config";
+import store from "@/state/store";
+import routes from "@/router/routes";
 
 export default {
     methods: {
+      stt(index,page,perpage){
+        return (index+1) + (page-1)*perpage;
+      },
+      _parseInt(value, defaultValue) {
+        const parsedValue = parseInt(value);
+        return isNaN(parsedValue) ? defaultValue : parsedValue;
+      },
+      
+      findRouterByName(routers, name) {
+        let foundRouter = null;
+    
+        function search(router) {
+            if (router.name === name) {
+                foundRouter = router;
+                return true;
+            }
+    
+            if (router.children && router.children.length > 0) {
+                for (const child of router.children) {
+                    if (search(child)) {
+                        return true;
+                    }
+                }
+            }
+    
+            return false;
+        }
+    
+        routers.forEach(router => {
+            if (!foundRouter) {
+                search(router);
+            }
+        });
+    
+        return foundRouter;
+    },
+    
+    canAny(listPermission){
+      let pem = store.getters['auth/getPem'];
+      if(pem.includes('*'))
+          return true;
+      return listPermission.some(permission => pem.includes(permission));
+    },
+    canAll(listPermission){
+      let pem = store.getters['auth/getPem'];
+      if(pem.includes('*'))
+          return true;
+      console.log(pem);
+
+     return listPermission.every(permission => pem.includes(permission));
+    },
+    can(action){
+      let pem = store.getters['auth/getPem'];
+      if(pem.includes('*'))
+          return true;
+      let rs = pem.includes(action);
+      return rs;
+    },
+    canLink(routerName){
+      let pem = store.getters['auth/getPem'];
+      if(pem.includes('*'))
+          return true;
+      let find = this.findRouterByName(routes,routerName);
+      let next = true;
+      console.error("fid",find)
+      
+        if(find && find.meta && find.meta.requiredRoles){
+            next = find.meta.requiredRoles.every(role => pem.includes(role));
+        }
+      
+     return next;
+      
+    },
+  
+     
+      
+      changeParams(router, newParams) {
+        const currentRoute = router.currentRoute.value;
+        const query = { ...currentRoute.query, ...newParams };
+      
+        router.replace({ query: query }).catch(err => {
+          if (err.name !== 'NavigationDuplicated') {
+            console.error(err);
+          }
+        });
+      },
+      addLoading(obj){
+          const newDiv = document.createElement('div')
+          newDiv.classList = 'wrap-loading'
+          newDiv.innerHTML =  '<div class="spinner-border text-primary avatar-sm" role="status"><span class="visually-hidden">Loading...</span></div>'
+          obj.appendChild(newDiv);
+          obj.classList.add('show-loading')
+      },
+      removeLoading(obj){
+          const elementsToRemove = obj.getElementsByClassName('wrap-loading');
+          while (elementsToRemove.length > 0) {
+            elementsToRemove[0].parentNode.removeChild(elementsToRemove[0]);
+          }
+          obj.classList.remove('show-loading');
+      },
+       generateCode(data) {
+        if (!data || !data.begin || !data.length || !data.pattern) {
+          return null;
+        }
+        let code = data.pattern + String(data.begin).padStart(data.length, '0');
+        return code;
+      },
+      checkVariable(key, data) {
+        let keys = key.split('.');
+        let temp = data;
+        for (let k of keys) {
+
+          if (temp!=undefined && Object.hasOwn(temp,k)) {
+            temp = temp[k];
+          } else {
+            return false;
+          }
+        }
+        return true;
+      },
+      getGender(gender) {
+        let genderList = [
+          {
+            'code': 'male',
+            'name': this.$t('male'),
+          },
+          {
+            'code': 'female',
+            'name': this.$t('female'),
+          },
+          {
+            'code': 'unknown',
+            'name': this.$t('unknown'),
+          },
+        ];
+      
+        if (gender === false) {
+          return genderList;
+        } else {
+          let matchedGender = genderList.find(item => item.code === gender);
+          return matchedGender ? matchedGender.name : '';
+        }
+      },
+      isImageMIME(mimeType) {
+        var pattern = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff|image\/webp)$/;
+        return pattern.test(mimeType);
+      },
+      toBoolean(val) {
+          return !!JSON.parse(String(val).toLowerCase());
+      },
       getStatusInfo(status) {
           const text = status ?
               this.$t('khadung') :
@@ -52,9 +204,9 @@ export default {
       syncData(arrayData, fields) {
         arrayData.forEach(data => {
           fields.forEach(field => {
-              if (data && field in data && (data[field] === 1 || data[field] === 0)) {
-                  data[field] = data[field] === 1 ? true : false;
-              }
+            if (data && field in data && (data[field] === 1 || data[field] === 0)) {
+                data[field] = data[field] === 1 ? true : false;
+            }
           });
       });
       return arrayData
@@ -65,7 +217,6 @@ export default {
       },
       imageLink(str) {
         return appConfig.APP_UPLOAD + str;
-
       },    
       currentRouter(){
        return  this.$router.history.current.path

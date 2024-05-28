@@ -15,9 +15,15 @@ for (const key in modules) {
 
 console.log(storeModules);
 const store = new Vuex.Store({
-  modules: storeModules,
+  modules,
 });
+try {
+  store.dispatch('data/initializeData');
+  store.dispatch('data/getSetting');
+  store.dispatch('user/getUserList');
+  store.dispatch('auth/setPem');
 
-store.dispatch('data/initializeData');
-store.dispatch('user/getUserList');
+} catch (error) {
+  console.error('Login:', error);
+}
 export default store;

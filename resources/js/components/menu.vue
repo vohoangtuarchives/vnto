@@ -2,16 +2,25 @@
 import {
   layoutComputed
 } from "@/state/helpers";
-
+import router from '@/router'; 
+import store from "@/state/store";
+import tokenService from '@/services/token.service';
 export default {
   data() {
     return {
+      userId:'0',
       settings: {
         minScrollbarLength: 60,
       },
     };
   },
+
   computed: {
+  
+    
+    store() {
+      return store
+    },
     ...layoutComputed,
     layoutType: {
       get() {
@@ -27,9 +36,29 @@ export default {
       deep: true,
     },
   },
+  created() {
+    // Tạo một watcher cho getter 'layout/getMenu'
+    this.$store.watch(
+      () => this.$store.getters['layout/getMenu'],
+      (menu, ) => {
+      
+        if(menu)
+          this.handleActiveMenu();
+        }
+        
+      
+    );
+  },
+
+
+
 
 
   mounted() {
+    
+
+
+    this.userId = tokenService.getUserField('id');  
     try{
     this.initActiveMenu();
     if (this.rmenu == 'vertical' && this.layoutType == 'twocolumn') {
@@ -130,7 +159,35 @@ export default {
   },
 
   methods: {
+    handleActiveMenu(){
+      let menu = this.$store.getters['layout/getMenu'];
+      const findPath = (routes, name,parent) => {
+          for (const route of routes) {
+            if (route.name === name) {
+              return parent+route.path;
+            }
+            if (route.children) {
+              const path = findPath(route.children, name,route.path);
+              if (path) {
+                return path;
+              }
+            }
+          }
+        };
+        if(menu!=null){
+         
+        
+          const path = findPath(router.options.routes, menu);
+          if(path!=null){
+            this.initActiveMenu(path);
+          }
+          
+          
+        
+        }
+    },
     onRoutechange(ele) {
+      
       this.initActiveMenu(ele.path);
       if (document.getElementsByClassName("mm-active").length > 0) {
         const currentPosition = document.getElementsByClassName("mm-active")[0].offsetTop;
@@ -138,10 +195,18 @@ export default {
           if (this.$refs.isSimplebar)
             this.$refs.isSimplebar.value.getScrollElement().scrollTop = currentPosition + 300;
       }
+      this.handleActiveMenu();
     },
 
-    initActiveMenu() {
-      const pathName = window.location.pathname;
+    initActiveMenu(path) {
+     
+      let pathName = window.location.pathname;
+      if(path){
+        pathName = path;
+       
+      }
+   
+     
       const ul = document.getElementById("navbar-nav");
       if (ul) {
         const items = Array.from(ul.querySelectorAll("a.nav-link"));
@@ -154,6 +219,7 @@ export default {
           this.activateParentDropdown(matchingMenuItem);
         } else {
           var id = pathName.replace("/", "");
+          
           if (id) document.body.classList.add("twocolumn-panel");
           this.activateIconSidebarActive(pathName);
         }
@@ -238,6 +304,30 @@ export default {
             <span data-key="t-dashboards">{{ $t("t-dashboards") }}</span>
           </router-link>
         </li>
+        <li class="nav-item" > 
+          <BLink class="nav-link menu-link" href="#informationUser" data-bs-toggle="collapse" role="button"
+                 aria-expanded="false" aria-controls="sidebarSettings">
+                 <i class="ri-file-user-line"></i>
+            <span data-key="t-settings">{{ $t("your-info") }}</span>
+          </BLink>
+          <div class="collapse menu-dropdown" id="informationUser">
+            <ul class="nav nav-sm flex-column">
+              
+              <li class="nav-item">
+                <router-link :to="{'name':'information.job.description' ,params:{id:userId} }" class="nav-link" data-key="your-info">
+                  {{$t('mota-congviec') }}
+                </router-link>
+              </li>
+             
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item">
+          <router-link class="nav-link menu-link" to="/newsfeed">
+            <i class="ri-article-line"></i>
+            <span data-key="t-newsfeed">{{ $t("t-newsfeed") }}</span>
+          </router-link>
+        </li>
         
         <li class="nav-item">
           <router-link class="nav-link menu-link" :to="{name:'customer.index'}">
@@ -245,7 +335,8 @@ export default {
             <span data-key="t-dashboards">{{ $t("t-khachhang") }}</span>
           </router-link>
         </li>
-        <li class="nav-item"> 
+        
+        <li class="nav-item" > 
           <BLink class="nav-link menu-link" href="#staff" data-bs-toggle="collapse" role="button"
                  aria-expanded="false" aria-controls="sidebarSettings">
             <i class="ri-aliens-line"></i>
@@ -263,11 +354,9 @@ export default {
              
             </ul>
           </div>
-
-        
         </li>
         <li class="nav-item">
-          <BLink class="nav-link menu-link" href="#sidebarSettings" data-bs-toggle="collapse" role="button"
+          <BLink class="nav-link menu-link" ref="menu.setting" href="#sidebarSettings" data-bs-toggle="collapse" role="button"
                  aria-expanded="false" aria-controls="sidebarSettings">
             <i class="ri-settings-2-line"></i>
             <span data-key="t-settings">{{ $t("t-settings") }}</span>
@@ -275,7 +364,7 @@ export default {
           <div class="collapse menu-dropdown" id="sidebarSettings">
             <ul class="nav nav-sm flex-column">
               <li class="nav-item">
-                <router-link to="/settings" class="nav-link" data-key="cau-hinh">
+                <router-link to="/settings" ref="menu.setting.setting" class="nav-link" data-key="cau-hinh">
                   Cấu Hình
                 </router-link>
               </li>
@@ -287,7 +376,89 @@ export default {
             </ul>
           </div>
         </li>
-
+        <li class="nav-item">
+          <BLink class="nav-link menu-link" href="#sidebarTimeSheet" data-bs-toggle="collapse" role="button"
+                 aria-expanded="false" aria-controls="sidebarTimeSheet">
+            <i class="ri-time-line"></i>
+            <span data-key="t-timesheet">{{ $t("timesheet.menu-title") }}</span>
+          </BLink>
+          <div class="collapse menu-dropdown" id="sidebarTimeSheet">
+            <ul class="nav nav-sm flex-column">
+              <li class="nav-item">
+                <router-link :to="{'name': 'timesheet.working-shift.view'}" class="nav-link" data-key="cau-hinh">
+                  Ca Làm Việc
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{'name': 'timesheet.working-shift.view'}" class="nav-link" data-key="cau-hinh">
+                  Bảng chấm công chi tiết
+                </router-link>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item">
+          <BLink class="nav-link menu-link" href="#sidebarAboutCompany" data-bs-toggle="collapse" role="button"
+                 aria-expanded="false" aria-controls="sidebarAboutCompany">
+            <i class="ri-file-paper-2-fill"></i>
+            <span data-key="t-timesheet">{{ $t("t-thongtincongty") }}</span>
+          </BLink>
+          <div class="collapse menu-dropdown" id="sidebarAboutCompany">
+            <ul class="nav nav-sm flex-column">
+              <li class="nav-item">
+                <router-link :to="{ name: 'static.company', params: { type: 'about-company' } , query: { title: $t('t-about') } }" class="nav-link" data-key="cau-hinh">
+                  {{$t('t-about')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'static.company', params: { type: 'rules-company' } , query: { title: $t('t-rules') } } " class="nav-link" data-key="cau-hinh">
+                  {{$t('t-rules')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'static.company', params: { type: 'cultural-company' } , query: { title: $t('t-cultural') } } " class="nav-link" data-key="cau-hinh">
+                  {{$t('t-cultural')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'settings.organization.unit' }" class="nav-link" data-key="cau-hinh">
+                  Sơ đồ tổ chức
+                </router-link>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item">
+          <BLink class="nav-link menu-link" href="#sidebarPosts" data-bs-toggle="collapse" role="button"
+                 aria-expanded="false" aria-controls="sidebarPosts">
+            <i class="ri-file-paper-2-fill"></i>
+            <span data-key="t-timesheet">{{ $t("t-hanhchinhnhanhsu") }}</span>
+          </BLink>
+          <div class="collapse menu-dropdown" id="sidebarPosts">
+            <ul class="nav nav-sm flex-column">
+              <li class="nav-item">
+                <router-link :to="{ name: 'posts.man', params: { type: 'regulations' }, query: { title: $t('t-regulation') } }" class="nav-link" data-key="post-bai">
+                  {{$t('t-regulation')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'posts.man', params: { type: 'decisions' }, query: { title: $t('t-decision') } }" class="nav-link" data-key="post-bai">
+                  {{$t('t-decision')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'posts.man', params: { type: 'notifications' }, query: { title: $t('t-notification') } }" class="nav-link" data-key="post-bai">
+                  {{$t('t-notification')}}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'posts.man', params: { type: 'power-of-attorney' }, query: { title: $t('t-power-of-attorney') } }" class="nav-link" data-key="post-bai">
+                  {{$t('t-power-of-attorney')}}
+                </router-link>
+              </li>
+            </ul>
+          </div>
+        </li>
       </ul>
     </template>
   </BContainer>

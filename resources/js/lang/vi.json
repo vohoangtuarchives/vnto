@@ -1,6 +1,7 @@
 {
     "t-menu": "Menu",
     "t-dashboards": "Dashboards",
+    "t-newsfeed": "Bảng tin",
     "t-analytics": "Analytics",
     "t-crm": "CRM",
     "t-ecommerce": "Ecommerce",
@@ -210,8 +211,28 @@
     "t-level-3.1": "Level 3.1",
     "t-level-3.2": "Level 3.2",
     "t-quanlythuoctinh":"Quản lý thuộc tính",
+    "t-bangtin":"Bảng tin",
+    "t-tintuc":"Tin tức",
+    "t-sangkien":"Sáng kiến",
+    "t-binhchon":"Bình chọn",
+    "t-regulation":"Quy định ban hành",
+    "t-decision":"Các quyết định",
+    "t-notification":"Các thông báo",
+    "t-power-of-attorney":"Giấy ủy quyền",
+    "t-about":"Giới thiệu",
+    "t-rules":"Nội quy",
+    "t-cultural":"Văn hóa công ty",
     "capnhat":"Cập nhật",
+    "capnhatthongtin":"Cập nhật thông tin",
+    "history":"Lịch sử",
+    "history-update":"Lịch sử cập nhật",
+    "history-user":"Người cập nhật",
+    "your-info":"Thông tin của bạn",
+    "mota-congviec":"Mô tả công việc",
+    "capnhat-mota-congviec":"Cập nhật mô tả công việc",
+    "thoigian":"Thời gian",
     "huy":"Huỷ",
+    "thoat":"Thoát",
     "thayanhcover":"Sửa ảnh cover",
     "thaydoithongtin":"Thay đổi thông tin",
     "gioithieuchung":"Giới thiệu chung",
@@ -219,13 +240,23 @@
     "hoatdong":"Hoạt động",
     "projects":"Dự án",
     "document":"Tài liệu",
-
+    "xayraloi":"Đã xảy ra lỗi",
+    "please-correct-error":"Hãy sửa lỗi sau",
+    "chonanh":"Chọn ảnh",
+    "anhdaidien":"Ảnh đại diện",
+    "photo":"Ảnh",
+    "tepdinhkem":"Tệp tin đính kèm",
+    "file_attached":"Tải thêm tệp tin",
+    "file_uploaded":"Tệp đã tải lên",
+    "themoithanhcong":"Thêm mới thành công",
     "dangcapnhat":"Đang cập nhật ",
+    "chuacofilenao":"Chưa có file nào ",
     "thongtincoban":"Thông tin cơ bản",
     "thaydoimatkhau":"Thay đổi mật khẩu",
     "hoten":"Họ tên",
     "dienthoai":"Điện thoại",
     "vitricongtac":"Vị trí công tác",
+    "phongban":"Phòng ban",
     "diachi":"Địa chỉ",
     "gioithieungan":"GIới thiệu ngắn",
     "ngaythamgia":"Ngày tham gia",
@@ -245,11 +276,28 @@
     "ghichu-nguonkhachhang":"Thêm và quản lý nguồn khách hàng",
     "tacvu":"Tác vụ",
     "trangthai":"Trạng thái",
+    "nguoitao":"Người tạo",
     "tennguon":"Tên nguồn",
     "stt":"STT",
     "xoa":"Xoá",
+    "xoatatca":"Xoá tất cả",
+    "bancochacmuonxoafile":"Bạn có chắc muốn xoá file này ?",
+    "post-news":"Hiển thị bảng tin",
+    "canchon1bai":"Bạn cần chọn ít nhất 1 bài",
+    "cochacmuonxoabainay":"Bạn có chắc chắn muốn xoá mục này?",
+    "cochacmuonxoa":"Bạn có chắc chắn muốn xoá tất cả những mục này?",
+    "cochacmuondualenbangtin":"Bạn có chắc chắn muốn đưa tất cả những bài này lên bảng tin?",
+    "cochacmuonthaokhoibangtin":"Bạn có chắc chắn muốn tháo bài này khỏi bảng tin?",
+    "cochacmuonduabainaylenbangtin":"Bạn có chắc chắn muốn đưa bài này lên bảng tin?",
+    "cochacmuonboghinhankpi":"Bạn có chắc chắn muốn bỏ ghi nhận KPI?",
+    "cochacmuonghinhankpi":"Bạn có chắc chắn muốn ghi nhận KPI?",
+    "cochactamdung":"Bạn có chắc chắn muốn tạm dừng mục này?",
+    "cochachoatdong":"Bạn có chắc chắn muốn cho phép mục này hoạt động?",
     "khadung":"Khả dụng",
     "khongkhadung":"Không khả dụng",
+    "tamdung":"Tạm dừng",
+    "co":"Có",
+    "khong":"Không",
     "capnhatnguonkhachhang":"Cập nhật nguồn khách hàng",
     "themmoinguonkhachhang":"Cập nhật nguồn khách hàng",
     "dong":"Close",
@@ -261,6 +309,7 @@
     "notempty":"{name} không được để trống",
     "notempty_select":"Vui lòng chọn trường {name}",
     "t-thongtincongty":"Thông tin công ty",
+    "t-hanhchinhnhanhsu":"Hành chính nhân sự",
     "danhsachkhachhang":"Danh sách khách hàng",
     "makhachhang":"Mã khách",
     "lienhe":"TT liên hệ",
@@ -275,11 +324,23 @@
     "loaikhachhang":"Loại khách hàng",
     "ghichu-loaikhachhang":"Phân loại khách hàng",
     "tenloai":"Tên loại",
+    "quanly":"Quản lý",
     "themmoi":"Thêm mới",
+    "themfile":"Thêm file",
+    "themfilekhongthanhcong":"Thêm file không thành công",
+    "daxoafile":"Đã xoá file",
+    "file":"Tệp tin",
+    "del_all":"Xoá tất cả",
+    "keovathataptin":"Kéo và thả tập tin vào đây để tải lên.",
     "capnhatloaikhachhang":"Cập nhật loại khách hàng",
+    "please-correct-lollowing-errors":"Vui lòng sửa (các) lỗi sau đây",
 
     "themmoiloaikhachhang":"Thêm mới loại khách hàng",
     "ten":"Tên",
+    "mota":"Mô tả",
+    "noidung":"Nội dung",
+    "ngaytao":"Ngày tạo",
+    "ngaycapnhat":"Ngày cập nhật",
     "themmoikhachhang":"Thêm mới khách hàng",
     "thongtinlienhe":"Thông tin liên hệ",
     "ngaysinh":"Ngày sinh",
@@ -302,6 +363,15 @@
     "vitri":"Vị trí",
     "tennhom":"Tên nhóm",
     "sothuoctinh":"Số thuộc tính",
+    "vuaxong":"vừa xong",
+    "truoc":"trước",
+    "ngay":"ngày",
+    "gio":"giờ",
+    "phut":"phút",
+    "giay":"giấy",
+    "nam":"năm",
+    "thang":"tháng",
+    "tuan":"tuần",
 
     "congcu":"Dashboard",
     "danhsachthuoctinh":"Danh sách thuộc tính",
@@ -328,7 +398,7 @@
     "dantoc":"Dân tộc",
     "quoctich":"Quốc tịch",
     "cmnd-cancuoc-hochieu":"CMND/Thẻ căn cước/Hộ chiếu",
-    
+
     "loaigiayto":"Loại giấy tờ",
     "socmndcccd":"Số CMND/CCCD",
     "ngaycapccccd":"Ngày cấp (CMND/CCCD)",
@@ -348,9 +418,9 @@
     "tongiao":"Tôn giáo",
     "hktt":"Hộ khẩu thường trú",
     "tinhthanh":"Tỉnh thành",
-    
+
     "phuongxa":"Phường xã",
-   
+
     "quanhe":"Quan hệ",
     "lienhekhancap":"Liên hệ khẩn cấp",
     "choohiennay":"Chỗ ở hiện nay",
@@ -408,10 +478,34 @@
     "nhaplaimatkhau": "Nhập lại mật khẩu",
     "sosohokhau": "Số sổ hộ khẩu",
     "thongtinquyen": "Thông tin quyền",
- 
+    "nguoilon": "Người lớn",
+    "treem": "Trẻ em",
+    "embe": "Em bé",
+    "khac": "Khác",
+    "khach": "Khách",
+    "phong": "Phòng",
+    "goi": "Gói",
+    "ve": "Vé",
+    "xe": "Xe",
+    "ghe": "Ghế",
+    "dem": "Đêm",
+    "luot": "Lượt",
+    "bua": "Bữa",
+    "thongbao": "Thông báo",
+    "timkiem": "Tìm kiếm",
+    "khongcodulieuphuhop": "Không có dữ liệu phù hợp",
+    "taothanhvienthanhcong": "Tạo thành viên thành công!",
+    "male":"Nam",
+    "female":"Nữ",
+    "unknown":"Không xác định",
+    "search":"Tìm kiếm",
+    "search_no_record":"Không tồn tại dữ liệu",
+
 
 
     "luu":"Lưu Thay Đổi",
+    "company.title": "Thông tin công ty",
+    "accounts.title": "Thông tin tài khoản",
     "settings": {
         "organization": {
             "require_company_name": "chưa nhập tên công ty",
@@ -419,7 +513,37 @@
             "require_email": "chưa nhập địa chỉ email",
             "incorrect_email_format": "email không đúng định dạng",
             "update-success": "Thay đổi thông tin thành công",
-            "update-fail": "Thay đổi thông tin không thành công"
+            "update-fail": "Thay đổi thông tin không thành công",
+            "company": {
+                "name": "Tên công ty",
+                "address": "Trụ sở chính",
+                "email": "Email",
+                "phone": "Số điện thoại",
+                "brand_name": "Thương hiệu",
+                "tax_code": "Mã số thuế",
+                "website": "Trang web",
+                "signatory": "Người đại diện",
+                "logo_lg_path": "Logo lớn",
+                "logo_sm_path": "logo nhỏ"
+            }
+        }
+    },
+    "jobposition":{
+        "main-title": "Vị trí công việc",
+        "is_main": "Trụ sở chính",
+        "form": {
+            "roles":"Nhóm quyền",
+            "name": "Tên vị trí",
+            "address": "Địa chỉ vị trí",
+            "code": "Mã vị trí",
+            "selectdepartment": "Chọn phòng ban",
+            "department": "Thuộc phòng ban",
+            "add-title": "Thêm mới vị trí",
+            "update-title": "Cập nhật vị trí"
+        },
+        "errors": {
+            "name_notEmpty": "Tên vị trí không được rỗng",
+            "code_notEmpty": "Mã phòng ban không được rỗng"
         }
     },
     "organization-unit": {
@@ -430,8 +554,16 @@
         "head_of_department": "Trưởng đơn vị",
         "organizational_level": "Cấp tổ chức",
         "parent": "Thuộc đơn vị",
-        "add-title": "Thêm tổ chức"
-
+        "add-title": "Thêm tổ chức",
+        "tenviettat": "Tên viết tắt",
+        "chucnangnhiemvu": "Chức năng, nhiệm vụ",
+        "errors":{
+            "parent_id_notEmpty":"Thuộc đơn vị không được rỗng",
+            "name_notEmpty":"Tên đơn vị không được rỗng",
+            "unit_code_notEmpty":"Mã đơn vị không được rỗng",
+            "user_id_notEmpty":"Trưởng đơn vị không được rỗng",
+            "number_numeric":"STT phải là kiểu số"
+        }
     },
     "branch": {
         "branch-title": "Tên chi nhánh",
@@ -441,11 +573,190 @@
             "update-branch-title": "Cập nhật chi nhánh"
         },
         "errors": {
-            "name_notEmpty": "Tên chi nhánh không đuược rỗng",
-            "address_notEmpty": "Địa chỉ chi nhánh không đuược rỗng"
+            "name_notEmpty": "Tên chi nhánh không được rỗng",
+            "address_notEmpty": "Địa chỉ chi nhánh không được rỗng"
         }
+    },
+    "doituong": {
+        "doituong":"Đối tượng tính giá",
+        "ten": "Tên đối tượng",
+        "loaihinhdichvu": "Loại hình dịch vụ",
+        "quydoisocho": "Quy đổi số chỗ",
+        "donvitinh": "Đơn vị tính",
+        "donvikhach": "Đơn vị khách",
+        "nhomdotuoi": "Nhóm độ tuổi",
+        "khongghinhankpi": "Không ghi nhận KPI",
+        "ghinhankpi": "Ghi nhận KPI",
+        "errors": {
+            "name_notEmpty": "Đối tượng tính giá không được rỗng",
+            "unit_price_notEmpty": "Đơn vị tính không được rỗng",
+            "age_group_notEmpty": "Nhóm độ tuổi không được rỗng",
+            "num_seats_notEmpty": "Quy đổi số chỗ không được rỗng",
+            "type_service_notEmpty": "Loại dịch vụ không được rỗng"
+        }
+    },
+    "dichvu": {
+        "dichvuchinhsach":"dịch vụ - chính sách",
+        "dichvubaogom": "Dịch vụ bao gồm",
+        "dichvukhongbaogom": "Dịch vụ không bao gồm",
+        "chinhsachhoanhuy": "Chính sách hoàn hủy",
+        "chinhsachphuthu": "Chính sách phụ thu",
+        "chinhsachtreem": "Chính sách trẻ em",
+        "luuydacbiet": "Lưu ý đặc biệt",
+        "dieukhoanhopdong": "Điều khoản hợp đồng",
+        "capnhatchinhsach":"Cập nhật chính sách",
+        "capnhatdieukhoanhopdong":"Cập nhật điều khoản hợp đồng"
+    },
+    "department": {
+        "main-title": "Tên phòng ban",
+        "is_main": "Trụ sở chính",
+        "form": {
+            "name": "Tên phòng ban",
+            "address": "Địa chỉ phòng ban",
+            "code": "Mã phòng ban",
+            "add-title": "Thêm mới phòng ban",
+            "update-title": "Cập nhật phòng ban",
+            "selectjobposition":"Chọn vị trí công việc",
+            "jobposition":"Vị trí công việc"
+        },
+        "errors": {
+            "name_notEmpty": "Tên phòng ban không được rỗng",
+            "code_notEmpty": "Mã phòng ban không được rỗng"
+        }
+    },
+    "media":{
+        "banner_login":"Banner login",
+        "logo_login":"Logo login",
+        "photo":"Hình ảnh",
+        "name_photo":"Tên ảnh",
+        "link":"Link",
+        "errors": {
+            "name_notEmpty": "Tên ảnh không được rỗng"
+        }
+    },
+    "post":{
+        "main-title":"Quản lí bài viết",
+        "name":"Tên bài viết",
+        "enter-name":"Nhập tên bài",
+        "content":"Nội dung",
+        "errors":{
+            "name_notEmpty":"Tên bài không được rỗng"
+        }
+    },
+    "timesheet": {
+        "menu-title": "Chấm công",
+        "settings": {
+            "title": "Thiết lập chấm công"
+        },
+        "working-shift": {
+            "main-title": "Ca làm việc",
+            "calculation": "Cách tính công",
+            "calculation-rate": "Hệ số",
+
+            "form": {
+                "name": "Tên ca",
+                "code": "Mã ca",
+                "start_time": "Giờ bắt đầu ca",
+                "end_time": "Giờ kết thúc ca",
+                "check_start_time": "Chấm vào",
+                "check_end_time": "Chấm ra",
+                "check_start_time_from": "Từ",
+                "check_start_time_to": "Đến",
+                "check_end_time_from": "Từ",
+                "check_end_time_to": "Đến",
+
+                "start_time_from": "Chấm vào đầu ca vào",
+                "start_time_to": "Chấm vào đầu ca đến",
+                "end_time_from": "Chấm ra cuối ca từ",
+                "end_time_to": "Chấm ra cuối ca đến",
+                "is_break_time": "Có nghỉ giữa ca",
+                "start_break_time": "Giờ bắt đầu",
+                "end_break_time": "Giờ kết thúc",
+                "check_break_time_out": "Chấm ra",
+                "check_break_time_in": "Chấm vào",
+                "break_time_out_from": "Từ",
+                "break_time_in_to": "Đến",
+                "working_day": "Ngày công",
+                "working_hour": "Giờ công",
+                "add-title": "Thêm ca làm việc",
+                "working_rate_holiday": "Ngày lễ",
+                "working_rate_weekday": "Ngày thường",
+                "working_rate_weekend": "Ngày nghỉ",
+                "is_show_without_check_in": "Nếu không có giờ vào thì bị trừ công",
+                "working_day_without_check_in": "Ngày công",
+                "working_hour_without_check_in": "Giờ công",
+                "is_show_without_check_out": "Nếu không có giờ ra thì bị trừ công",
+                "working_day_without_check_out": "Ngày công",
+                "working_hour_without_check_out": "Giờ công",
+                "early_out_time": "Cho phép về  sớm",
+                "late_in_time": "Cho phép  đi muộn",
+                "is_allow_late_in_early_out": "Đi muộn về sớm"
+            },
+            "errors": {
+                "notEmpty": "không được để trống",
+                "notEmptyName": "không được để trống Tên ca",
+                "notEmptyCode": "không được để trống Mã ca",
+                "notEmptyStartTime": "không được để trống Giờ bắt đầu "
+            }
+        }
+    }, 
+    "permission":{ 
+        "group":{   
+          "select":"Chọn nhóm quyền",
+          "permissions":"Danh sách quyền",
+           "form":{
+                "list_permission":"Danh sách quyền",
+                "name":"Tên nhóm",
+                "label":"Mã quyền",
+                "update-title":"Cập nhật nhóm",
+                "add-title":"Thêm nhóm"
+            }
+        },
+        "item":{
+            "name":"quyền",
+            "main-title":"Danh sách quyền",
+            "form":{
+                "name":"Tên quyền",
+                "label":"Mã quyền",
+                "update-title":"Cập nhật quyền",
+                "add-title":"Thêm quyền"
+            }
+
+        },
+        "errors":{
+            "item":{
+                "name":{
+                    "notEmpty":"Tên quyền không được trống"
+                },
+                "label":{
+                    "notEmpty":"Mã quyền không được trống"
+                }
+            }
+        }
+      
+    },
+    "errors":{
+        "delete_role_before":"Vui lòng loại bỏ quyền này cho nhóm [{a}] trước khi xoá",
+        "period_error":"Cho phép các chữ cái (a-z, A-Z), các số (0-9), và dấu chấm (.) trong trường {a}",
+        "delete_fail":"Xoá không thành công! Vui lòng thử lại"
+    },
+    "confirm":{
+        "title":{
+            "delete":"Xác nhận xoá"
+        },
+        "confirm_delete":"Bạn có chắc chắn muốn xoá?",
+        "delete":"Bạn có chắc chắn muốn xoá {a} này",
+        "ok":"Xác nhận",
+        "cancel":"Huỷ"
+    },
+    "messege":{
+        "delete_success":"Xoá thành công!"
     }
+
+
 }
+
+
 
 
 

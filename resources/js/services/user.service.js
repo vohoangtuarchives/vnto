@@ -1,6 +1,9 @@
 import api from './api';
 
 class UserService {
+  create(data){
+    return api.post('/auth/register',data);
+  }
   updateInfo(data){
     return api.patch('/user/info',data);
   }

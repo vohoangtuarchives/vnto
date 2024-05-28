@@ -33,12 +33,13 @@ export default {
       let sidebarSize = ''
       // Check window.screen.width and update the data-sidebar-size attribute
       if (window.innerWidth < 1025) {
-        this.sidebarSize = "sm";
+       // this.sidebarSize = "sm";
         sidebarSize = 'sm'
       } else {
-        this.sidebarSize = "lg"; // Reset sidebarSize if screen width is >= 1025
+      //  this.sidebarSize = "lg"; // Reset sidebarSize if screen width is >= 1025
         sidebarSize = 'lg'
       }
+     
       // Update the data-sidebar-size attribute of document.documentElement
       document.documentElement.setAttribute("data-sidebar-size", sidebarSize);
     },
@@ -93,6 +94,7 @@ export default {
     }
 
     window.addEventListener("resize", () => {
+      
       document.body.classList.remove('vertical-sidebar-enable');
       if(document.querySelector(".hamburger-icon")){
         document.querySelector(".hamburger-icon").classList.add("open")

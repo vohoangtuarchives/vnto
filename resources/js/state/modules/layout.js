@@ -10,14 +10,15 @@
   sidebarColor: 'dark',
   sidebarImage: 'none',
   preloader: 'disabled',
-  visibility: 'show'
+  visibility: 'show',
+  menu:null,
 };
 
 
 
  const mutations = {
   beginLoading(state) {
-    
+  
   state.loading = true;
       
   },
@@ -25,6 +26,9 @@
     
     state.loading = false;
 
+  },
+  SET_MENU(state,menu){
+    state.menu = menu;
   },
   CHANGE_LAYOUT(state, layoutType) {
     state.layoutType = layoutType;
@@ -64,7 +68,12 @@ const getters = {
   isLoading(state){
    
     return state.loading;
+  },
+  getMenu(state){
+    return state.menu;
   }
+
+
 }
  const actions = {
   

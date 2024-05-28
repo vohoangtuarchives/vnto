@@ -140,6 +140,7 @@ export default {
     }
   },
   mounted() {
+    
     this.formData = new FormData();
     api.get(API_ORGANIZATION_INFORMATION).then((response)=>{
       let _that = this;

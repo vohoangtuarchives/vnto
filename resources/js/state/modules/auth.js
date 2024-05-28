@@ -2,7 +2,7 @@ import AuthService from '@/services/auth.service';
 import TokenService from "@/services/token.service";
 import tokenService from '../../services/token.service';
 const user = TokenService.getUser();
-const initialState = user ? { status: { loggedIn: true }, user } : { status: { loggedIn: false }, user: null };
+const initialState = user ? { status: { loggedIn: true }, user,permission: null } : { status: { loggedIn: false }, user: null,permission: null };
 
   const state = initialState
   const getters = {
@@ -13,6 +13,9 @@ const initialState = user ? { status: { loggedIn: true }, user } : { status: { l
      
       return state.user;
     },
+    getPem(state){
+      return state.permission;
+    }
   };
   const actions = {
     async login({ commit }, userData) {
@@ -80,12 +83,16 @@ const initialState = user ? { status: { loggedIn: true }, user } : { status: { l
       .catch(error => {
         throw error
       });
-    }
-
+    },
+    setPem({ commit }){
+      const pem = tokenService.getPem();     
+      commit('SET_PERMISSION',pem);
+    },
 
 
   }
   const mutations = {
+    
     changeUserInfo(state,user){
       if(user.type!=undefined){
         tokenService.setUserInfo(user.data,user.type);
@@ -118,6 +125,10 @@ const initialState = user ? { status: { loggedIn: true }, user } : { status: { l
     refreshToken(state, accessToken) {
       state.status.loggedIn = true;
       state.user = { ...state.user, accessToken: accessToken };
+    },
+    SET_PERMISSION(state, permission) {
+      state.permission = permission;
+      
     }
   }
 

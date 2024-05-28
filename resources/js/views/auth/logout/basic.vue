@@ -52,7 +52,6 @@ export default {
                   <img src="@/assets/images/logo-light.png" alt="" height="20">
                 </router-link>
               </div>
-              <p class="mt-3 fs-15 fw-medium">Premium Admin & Dashboard Template 2</p>
             </div>
           </BCol>
         </BRow>
@@ -63,8 +62,7 @@ export default {
               <BCardBody class="p-4 text-center">
                 <lottie colors="primary:#405189,secondary:#08a88a" :options="defaultOptions" :height="180"
                   :width="180" />
-                <div class="mt-4 pt-2">
-                  <h5>You are Logged Out 222222</h5>
+                <div class="my-4 pt-2">
                   <p class="text-muted">Thank you for using <span class="fw-semibold">velzon</span>
                     admin template</p>
                   <div class="mt-4">

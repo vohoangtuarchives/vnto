@@ -13,6 +13,7 @@ axiosInstance
     .request
     .use((config) => {
         const token = TokenService.getLocalAccessToken();
+        
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }

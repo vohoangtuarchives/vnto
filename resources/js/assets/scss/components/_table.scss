@@ -1,6 +1,77 @@
 // 
 // _table.scss
 // 
+.p-treetable-wrapper{
+    .p-treetable-thead{
+        tr{
+            th{
+                text-align: left;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                border-width: 0 0 1px 0;
+                font-weight: 600;
+                color: #334155;
+                background: #ffffff;
+                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, outline-color 0.2s;
+                color: #000;
+                background-color: #f3f6f9;
+            }
+        }
+    }
+    .p-treetable-tbody{
+        tr{
+            td{
+                text-align: left;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                border-width: 0 0 1px 0;
+                color: #334155;
+                background: #ffffff;
+                transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, outline-color 0.2s;
+            }
+        }
+    }
+}
+.p-organizationchart{
+    &-table > tbody > tr > td {
+        text-align: center;
+        vertical-align: top;
+        padding: 0 0.75rem;
+    }
+    .p-organizationchart-line-top {
+        border-top: 1px solid #e2e8f0;
+        border-color: #e2e8f0;
+    }
+    .p-organizationchart-line-left {
+        border-right: 1px solid #e2e8f0;
+        border-color: #e2e8f0;
+    }
+    .p-organizationchart-lines {
+        :nth-child(1 of .p-organizationchart-line-right) {
+            border-left: 1px solid #e2e8f0;
+            border-top-left-radius: 6px;
+        }
+        
+        :nth-child(1 of .p-organizationchart-line-left) {
+            border-right: none;
+        }
+    }
+   
+    
+}
+.p-treeselect-items-wrapper{
+    ul{
+        padding-left:0;
+        ul{
+            padding-left:0.8rem;
+        }
+    }
+}
+.p-dropdown-items-wrapper{
+    ul{
+        padding-left:0;
+    }
+}
 
 .table {
 

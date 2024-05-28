@@ -1,5 +1,7 @@
 <script>
-
+import {ref} from "vue";
+import Carousel from 'primevue/carousel';
+import uploadPhotoService from "@/services/uploadPhoto.service";
 import {
   required,
   email,
@@ -14,6 +16,9 @@ import {
 
 
 export default {
+  components: {
+    Carousel,
+  },
   data() {
     return {
       email: "test@example.com",
@@ -24,14 +29,12 @@ export default {
       isAuthError: false,
       processing: false,
       showInput:false,
-      crsf_token: ""
+      dataBanner: ref([]),
+      urlLogo:null,
+      typeBanner: 'banner-login',
+      typeLogo: 'logo-login',
     };
   },
-mounted(){
-  axios.get('/api/sanctum/csrf-cookie').then(response => {
-    this.crsf_token =  response.data.csrf_token;
-  });
-},
   validations: {
     email: {
       required: helpers.withMessage("Email is required", required),
@@ -41,28 +44,29 @@ mounted(){
       required: helpers.withMessage("Password is required", required),
     },
   },
+  created(){
+    this.getData();
+    this.getDataLogo();
+  },
   computed: {
-    ...mapActions('data', ['initializeData']),
+    ...mapActions('data', ['initializeData','getSetting']),
+    ...mapActions('auth', ['setPem']),
    
   },
   methods: {
     ...authMethods,
     ...notificationMethods,
-   
       signinapi() {
       this.authError = null;
       this.processing = true;
       this.isAuthError = false;
-      this.$store.dispatch("auth/login", {
-        _crsf: this.crsf_token,
-        email:this.email,password:this.password}).then(
-        (response) => {
-          console.log(response)
-          if(response.success){
-            this.$router.push("/");
-            this.initializeData;
-            this.processing = false;
-          }
+      this.$store.dispatch("auth/login", {email:this.email,password:this.password}).then(
+        () => {
+           this.$router.push("/");
+           this.initializeData;
+           this.getSetting;
+
+           this.processing = false;
 
         },
         (error) => {
@@ -78,126 +82,111 @@ mounted(){
             this.authError = 'Network error'
           }
         }
-      
-       
       );
-      
-      
-
-      }
+      },
+      getData(){
+          const  conditionsBanner = {
+            status: 1,
+            type: this.typeBanner
+        };
+        uploadPhotoService.getBanner(conditionsBanner).then((response)=>{
+          this.dataBanner = response.data.data;
+        })
+      },
+      async getDataLogo() {
+        try {
+          const response = await uploadPhotoService.getItem(this.typeLogo);
+          if(response.data.data){
+            this.urlLogo= this.imageLink(this.typeLogo+'/'+response.data.data.name_file);
+          }
+        } catch (error) {
+          console.error('Error while fetching data:', error);
+        }
+      },
     }
-   
 };
 </script>
 
 <template>
-  <div class="auth-page-wrapper pt-5">
-    <div class="auth-one-bg-position auth-one-bg" id="auth-particles">
-      <div class="bg-overlay"></div>
-
-      <div class="shape">
-
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
-          viewBox="0 0 1440 120">
-          <path d="M 0,36 C 144,53.6 432,123.2 720,124 C 1008,124.8 1296,56.8 1440,40L1440 140L0 140z"></path>
-        </svg>
-      </div>
-    </div>
-
-    <div class="auth-page-content">
-      <BContainer>
-        <BRow>
-          <BCol lg="12">
-            <div class="text-center mt-sm-5 mb-4 text-white-50">
-              <div>
-                <router-link to="/" class="d-inline-block auth-logo">
-                  <img src="@/assets/images/logo-light.png" alt="" height="20" />
-                </router-link>
-              </div>
-             
+  <div class="auth-page-wrapper">
+    <div class="auth-page-content bg-dark">
+      <BRow>
+        <BCol class="mt-0 px-0 d-none d-sm-block" lg="8" xl="8 "  md="8 ">
+          <div class="banner-login">
+            <div v-if="this.dataBanner.length">
+              <Carousel :value="this.dataBanner" :numVisible="1" :numScroll="1" circular:false :autoplayInterval="3000"  :showNavigators="false" :showIndicators="false">
+                <template #item="slotProps">
+                    <div class="">
+                      <div v-if="slotProps.data.link" >
+                          <router-link :to="slotProps.data.link" class="text-reset">
+                            <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />
+                          </router-link>
+                      </div>
+                      <div v-else >
+                          <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />
+                      </div>
+                    </div>
+                </template>
+              </Carousel>
             </div>
-          </BCol>
-        </BRow>
-
-        <BRow class="justify-content-center">
-          <BCol md="8" lg="6" xl="5">
-            <BCard no-body class="mt-4">
-              <BCardBody class="p-4">
-                <div class="text-center mt-2">
-                  <h5 class="text-primary">{{ $t("t-dashboards") }}</h5>
-                  <p class="text-muted">Sign in to continue to Velzon.</p>
+            <div v-else></div>
+          </div>
+        </BCol>
+        <BCol md="4" lg="4" xl="4" class="p-0">
+          <BCard no-body class="p-4 bg-login">
+              <div class="text-center mb-4 text-white-50">
+                <div>
+                  <router-link to="/" class="d-inline-block auth-logo">
+                    <img :src="this.urlLogo" alt="" width="250" style="max-width:100%;"  />
+                  </router-link>
                 </div>
-                <div class="p-2 mt-4">
-
-                  <BAlert v-model="isAuthError" v-if="isAuthError==true" variant="danger" class="mt-3" dismissible v-html="authError"></BAlert>
-
-                  <div>
-
+              </div>
+              <div class="text-center mt-2 title-login">
+                <h2 class="m-0">CÔNG TY CỔ PHẦN TM VÀ DV DU LỊCH VIETNAM TOURIST</h2>
+                <p class="m-0 mt-4 text-uppercase">Sign in to continue to system.</p>
+              </div>
+              <div class="p-2 mt-4">
+                <BAlert v-model="isAuthError" v-if="isAuthError==true" variant="danger" class="mt-3" dismissible v-html="authError"></BAlert>
+                <form @submit.prevent="tryToLogIn">
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" v-model="email" />
+                    <div class="invalid-feedback ">
+                      <span></span>
+                    </div>
                   </div>
-
-                  <form @submit.prevent="tryToLogIn">
-                    <div class="mb-3">
-                      <label for="email" class="form-label">Email</label>
-                      <input type="email" class="form-control" id="email" placeholder="Enter email" v-model="email" />
+                  <div class="mb-3">
+                    <div class="float-end">
+                      <router-link to="/forgot-password" class="text-muted">Forgot
+                        password?</router-link>
+                    </div>
+                    <label class="form-label" for="password-input">Password</label>
+                    <div class="position-relative auth-pass-inputgroup mb-3">
+                      <input :type="showInput?'text':'password'" v-model="password" class="form-control pe-5" placeholder="Enter password"
+                        id="password-input" />
+                      <BButton variant="link" @click="showInput=!showInput" class="position-absolute end-0 top-0 text-decoration-none text-muted "
+                        type="button" id="password-addon">
+                        <i class="ri-eye-fill  text-white"></i>
+                      </BButton>
                       <div class="invalid-feedback">
                         <span></span>
                       </div>
                     </div>
-
-                    <div class="mb-3">
-                      <div class="float-end">
-                        <router-link to="/forgot-password" class="text-muted">Forgot
-                          password?</router-link>
-                      </div>
-                      <label class="form-label" for="password-input">Password</label>
-                      <div class="position-relative auth-pass-inputgroup mb-3">
-                        <input :type="showInput?'text':'password'" v-model="password" class="form-control pe-5" placeholder="Enter password"
-                          id="password-input" />
-                        <BButton variant="link" @click="showInput=!showInput" class="position-absolute end-0 top-0 text-decoration-none text-muted"
-                          type="button" id="password-addon">
-                          <i class="ri-eye-fill align-middle"></i>
-                        </BButton>
-                        <div class="invalid-feedback">
-                          <span></span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="" id="auth-remember-check" />
-                      <label class="form-check-label" for="auth-remember-check">Remember
-                        me</label>
-                    </div>
-
-                    <div class="mt-4">
-                      <BButton variant="success" class="w-100" type="submit" @click="signinapi" :disabled="processing" :loading="processing" loadingText="Please wait ">
-                        Sign In
-                      </BButton>
-                    </div>
-
-                    
-                  </form>
-                </div>
-              </BCardBody>
-            </BCard>
-          </BCol>
-        </BRow>
-      </BContainer>
-    </div>
-
-    <footer class="footer">
-      <BContainer>
-        <BRow>
-          <BCol lg="12">
-            <div class="text-center">
-              <p class="mb-0 text-muted">
-                &copy; {{ new Date().getFullYear() }} Velzon. Crafted with
-                <i class="mdi mdi-heart text-danger"></i> by Themesbrand
-              </p>
-            </div>
-          </BCol>
-        </BRow>
-      </BContainer>
-    </footer>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="auth-remember-check" />
+                    <label class="form-check-label" for="auth-remember-check">Remember me</label>
+                  </div>
+                  <div class="mt-4">
+                    <BButton class="w-100 " type="submit" @click="signinapi" :disabled="processing" :loading="processing" loadingText="Please wait ">
+                      Sign In <i class="ri-arrow-right-line text-white"></i>
+                    </BButton>
+                  </div>
+                </form>
+              </div>
+          </BCard>
+        </BCol>
+      </BRow>
+  </div>
   </div>
 </template>

@@ -15,6 +15,5 @@ class AuthController extends BaseController{
         }catch (\Exception $exception){
             return $this->exception($exception, $exception->getMessage());
         }
-
     }
 }

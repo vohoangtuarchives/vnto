@@ -10,6 +10,11 @@ class TokenService {
       const user = this.getUser();
       return user?.access_token;
     }
+    getUserField(field){
+       const user = this.getUser();
+       return user.user.user[field];
+        
+    }
   
     updateLocalAccessToken(token) {
       let user = JSON.parse(localStorage.getItem("user"));
@@ -17,10 +22,8 @@ class TokenService {
       localStorage.setItem("user", JSON.stringify(user));
     }
     setUserInfo(data,key) {
-
-        console.log(data)
-
-      let storage = JSON.parse(localStorage.getItem("user") || {});
+     
+      let storage = JSON.parse(localStorage.getItem("user"));
       
       if(!key){
           storage.user = data;
@@ -37,9 +40,16 @@ class TokenService {
     setUser(user) {
       localStorage.setItem("user", JSON.stringify(user));
     }
+    getPem() {
+      return JSON.parse(localStorage.getItem("pem"));
+    }
+    setPem(data){
+      localStorage.setItem("pem", JSON.stringify(data));
+    }
   
     removeUser() {
       localStorage.removeItem("user");
+      localStorage.removeItem("pem");
     }
   }
   

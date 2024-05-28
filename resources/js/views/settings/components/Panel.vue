@@ -6,8 +6,9 @@
     <div class="card-body">
       <ul class="list-unstyled row m-0">
         <template v-for="(item, index) in items" :key="index">
-          <PanelLinkItem :item="item"/>
+          <PanelLinkItem  v-if="canLink(item.router)" :item="item" />
         </template>
+        
       </ul>
     </div>
   </div>

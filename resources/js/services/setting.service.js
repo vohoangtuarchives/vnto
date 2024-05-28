@@ -38,6 +38,10 @@ class SettingService {
     return api
     .post("/options/update",{type,data})
   }
+  getSettings(){
+    return api
+    .get("/setting")
+  }
 
 
 }

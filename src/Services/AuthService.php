@@ -11,7 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
-    use ThrottlesLogins;
+
+
     public function __construct(protected UserRepositoryContract $userRepository)
     {
     }
@@ -89,7 +90,8 @@ class AuthService
         return [
             'access_token' => $user->createToken(
                 'token-name', ['*'], now()->addWeek()
-            )->plainTextToken
+            ),
+            'user' => $user,
         ];
     }
 
