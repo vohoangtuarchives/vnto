@@ -2,6 +2,7 @@
 
 namespace Def\Providers;
 
+use Def\Commands\Install;
 use Def\Repository\User\UserRepository;
 use Def\Repository\User\UserRepositoryContract;
 use Illuminate\Support\ServiceProvider;
@@ -13,7 +14,11 @@ class DefServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
+        $this->commands(
+            [
+                Install::class
+            ]
+        );
     }
 
     /**
