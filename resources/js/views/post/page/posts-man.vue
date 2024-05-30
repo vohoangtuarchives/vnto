@@ -12,12 +12,31 @@ export default {
   data() {
     return {
       title : this.$route.query.title || 'Default Title',
-      columShow:['photo','show_on_news','status'],
-      service: PostService,
-      nameRouterAdd: 'posts.add',
-      nameRouterEdit: 'posts.edit',
-      nameRouterView: "posts.overview",
+      columShow:['photo','show_on_news'],
+      service: PostService, 
+      arrayLink:[
+        {
+          name: 'add',
+          route: 'posts.add',
+        },
+        {
+          name: 'edit',
+          route: 'posts.edit',
+        },
+        {
+          name: 'view',
+          route: 'posts.overview',
+        },
+      ]
     };
+  },
+  watch: {
+    "$route.query.title": {
+      handler(newTitle) {
+        this.title = newTitle;
+      },
+      immediate: true,
+    },
   },
 };
 </script>
@@ -25,7 +44,7 @@ export default {
   <Layout>
     <PageHeader :title="`${$t('quanly')} ${this.title}`" pageTitle="Dashboard" />
     <BCard>
-      <TableData :services="this.service" :columShow="columShow" :nameRouterAdd="this.nameRouterAdd" :nameRouterEdit="this.nameRouterEdit" :nameRouterView="this.nameRouterView"/>
+      <TableData :services="this.service" :columShow="columShow" :arrayLink="arrayLink"/>
     </BCard>
   </Layout>
 </template>

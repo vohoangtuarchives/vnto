@@ -23,8 +23,16 @@ export default {
       ],
       service: PolicyService,
       isLoading: false,
-      nameRouterAdd: "settings.config_policy.add",
-      nameRouterEdit: "settings.config_policy.edit",
+      arrayLink:[
+        {
+          name: 'add',
+          route: 'settings.config_policy.add',
+        },
+        {
+          name: 'edit',
+          route: 'settings.config_policy.edit',
+        }
+      ]
     };
   },
 };
@@ -37,11 +45,9 @@ export default {
     />
     <BCard>
       <TableData
-        typeMan="doitruong"
-        :services="this.service"
+        :services="service"
         :columShow="columShow"
-        :nameRouterAdd="this.nameRouterAdd"
-        :nameRouterEdit="this.nameRouterEdit"
+        :arrayLink="arrayLink"
       />
     </BCard>
   </Layout>

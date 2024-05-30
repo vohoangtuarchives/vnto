@@ -1,3 +1,4 @@
+import './bootstrap';
 import {createApp} from 'vue';
 
 import App from './App.vue';
@@ -41,11 +42,13 @@ import Skeleton from 'primevue/skeleton';
 import StyleClass from 'primevue/styleclass';
 
 import Tooltip from 'primevue/tooltip';
+import {createPinia} from "pinia";
 
 setupInterceptors();
-
+const pinia = createPinia();
 const app = createApp(App)
     .mixin(mixin)
+    .use(pinia)
     .use(VueFinder2)
     .use(ConfirmationService)
     .use(ToastService)

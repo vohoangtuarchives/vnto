@@ -22,21 +22,16 @@ export default {
     typeMan: {
       type: String,
     },
-    nameRouterAdd: {
-      type: String,
-    },
-    nameRouterEdit: {
-      type: String,
-    },
-    nameRouterView: {
-      type: String,
-    },
     services: {
       type: Boolean,
     },
     columShow: {
       type: Array,
     },
+    arrayLink:{
+      type: Array,
+      default: () => [],
+    }
   },
   data() {
     return {
@@ -81,7 +76,7 @@ export default {
       return this.filter;
     },
     perPageValue() {
-      return parseInt(this.$route.query.perpage || 5);
+      return parseInt(this.$route.query.perpage || 10);
     },
     pageValue() {
       return parseInt(this.$route.query.page || 1);
@@ -207,6 +202,16 @@ export default {
         }
       }
     },
+    hasLink(name) {
+      return this.arrayLink.some(link => link.name === name);
+    },
+    getLinkRoute(name) {
+      const link = this.arrayLink.find(link => link.name === name);
+      if (link) {
+        return link.route;
+      }
+      return ''; // Trả về một đối tượng rỗng nếu không tìm thấy link
+    }
   },
 };
 </script>
@@ -238,12 +243,12 @@ export default {
           <i class="ri-list-settings-line"></i>
         </a>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <li>
+          <li v-if="hasLink('add')">
             <router-link
               :to="{
-                name: this.nameRouterAdd,
-                params: { type: this.typePage },
-                query: { title: this.titlePage },
+                name: getLinkRoute('add'),
+                params: { type: typePage },
+                query: { title: titlePage },
               }"
               class="dropdown-item btn btn-success w-100"
             >
@@ -292,7 +297,7 @@ export default {
     <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
     <Column :header="$t('stt')" style="width: 50px">
       <template #body="{ index }" v-if="!loading">
-        {{ stt(index, this.pageValue, this.perPageValue) }}
+        {{ stt(index, pageValue, perPageValue) }} 
       </template>
       <template v-else #body>
         <Skeleton height="2rem"></Skeleton>
@@ -306,15 +311,16 @@ export default {
     >
       <template #body="{ data }" v-if="!loading">
         <router-link
+          v-if="hasLink('view')"
           :to="{
-            name: this.nameRouterView,
-            params: { type: this.typePage, id: data.id },
-            query: { title: this.titlePage },
+            name: getLinkRoute('view'),
+            params: { type: typePage, id: data.id },
+            query: { title: titlePage },
           }"
         >
           <img
             v-if="data.photo"
-            :src="this.imageLink(this.typePage + '/' + data.photo)"
+            :src="imageLink(typePage + '/' + data.photo)"
             alt="Preview"
             style="max-width: 100%; max-height: 40px"
           />
@@ -331,14 +337,16 @@ export default {
     <Column :header="$t('post.name')" sortable field="name">
       <template #body="{ data }" v-if="!loading">
         <router-link
+          v-if="hasLink('view')"
           :to="{
-            name: this.nameRouterView,
-            params: { type: this.typePage, id: data.id },
-            query: { title: this.titlePage },
+            name: getLinkRoute('view'),
+            params: { type: typePage, id: data.id },
+            query: { title: titlePage },
           }"
         >
           {{ data.name }}
         </router-link>
+        <span v-else>{{ data.name }}</span>
         <div v-if="data.user" class="mt-1 text-success">
           <i class="ri-user-add-line me-1"></i
           >{{ data.user ? data.user.name : "" }}
@@ -451,10 +459,11 @@ export default {
       <template #body="{ data }" v-if="!loading">
         <div class="list-tools">
           <router-link
+            v-if="hasLink('edit')"
             :to="{
-              name: this.nameRouterEdit,
-              params: { type: this.typeMan, id: data.id },
-              query: { title: this.titleMan },
+              name: getLinkRoute('edit'),
+              params: { type: typeMan, id: data.id },
+              query: { title: titleMan },
             }"
             class="edit"
           >

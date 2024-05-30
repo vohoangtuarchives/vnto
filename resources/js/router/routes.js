@@ -26,6 +26,7 @@ routes.push(
 
                 if (store.getters["auth/loggedIn"]) {
                     // Redirect to the home page instead
+                    alert("X");
                     next({name: "default"});
                 } else {
                     // Continue to the login page

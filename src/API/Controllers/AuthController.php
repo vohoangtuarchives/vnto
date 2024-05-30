@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class AuthController extends BaseController{
     public function __construct(protected AuthService $authService){}
 
-    public function login(Request $request)
+    public function login(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             return $this->success($this->authService->login($request));

@@ -1,5 +1,5 @@
 <script>
-import { layoutMethods } from "@/state/helpers";
+import { layoutMethods } from "@/stores/helpers";
 import { mapGetters} from 'vuex';
 import { ref} from 'vue';
 import img1 from "../assets/images/products/img-1.png"
@@ -13,6 +13,8 @@ import simplebar from "simplebar-vue";
 import i18n from "../i18n";
 import appConfig from "@/configs/app.config";
 
+import {useAuthStore} from "@/stores/auth.store.js";
+import {mapActions} from "pinia";
 /**
  * Nav-bar Component
  */
@@ -81,7 +83,9 @@ export default {
   },
 
   methods: {
+    ...mapActions(useAuthStore, ["getUserData"]),
     ...layoutMethods,
+
     isCustomDropdown() {
       //Search bar
       var searchOptions = document.getElementById("search-close-options");
@@ -242,7 +246,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('auth',['getUserData']),
+    // ...mapGetters('auth',['getUserData']),
 
     // isLoggedIn() {
     //   return this.$store.getters.isLoggedIn;
@@ -869,10 +873,10 @@ export default {
             menu-class="dropdown-menu-end" :offset="{ alignmentAxis: -14, crossAxis: 0, mainAxis: 0 }">
             <template #button-content>
               <span class="d-flex align-items-center">
-                <img class="rounded-circle header-profile-user" :src="imageLink(this.getUserData.user.avatar)"
+                <img class="rounded-circle header-profile-user" :src="imageLink(this.getUserData.avatar)"
                   alt="Header Avatar">
                 <span class="text-start ms-xl-2">
-                  <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{this.getUserData.user.name }}</span>
+                  <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{this.getUserData.name }}</span>
                   <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">Founder</span>
                 </span>
               </span>

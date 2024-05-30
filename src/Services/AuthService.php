@@ -3,6 +3,7 @@ namespace Def\Services;
 
 
 use Def\HTTP\ThrottlesLogins;
+use Def\Repository\Auth\AuthRepositoryContract;
 use Def\Repository\User\UserRepositoryContract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,9 +12,9 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
+    use ThrottlesLogins;
 
-
-    public function __construct(protected UserRepositoryContract $userRepository)
+    public function __construct(protected AuthRepositoryContract $authRepository)
     {
     }
 
@@ -87,8 +88,16 @@ class AuthService
 
     protected function authenticated(Request $request, $user)
     {
+//        return response()->json([
+//            'refresh_token'=>$refresh,
+//            'access_token' => $token,
+//            'token_type' => 'bearer',
+//            'expires_in' => auth()->factory()->getTTL() * 200,
+//            'user' => auth()->user()
+//        ]);
+
         return [
-            'access_token' => $user->createToken(
+            'token' => $user->createToken(
                 'token-name', ['*'], now()->addWeek()
             ),
             'user' => $user,

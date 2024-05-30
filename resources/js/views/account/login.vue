@@ -1,12 +1,12 @@
 <script>
 import {ref} from "vue";
-import Carousel from 'primevue/carousel';
-import uploadPhotoService from "@/services/uploadPhoto.service";
 import {
   required,
   email,
   helpers
 } from "@vuelidate/validators";
+
+import {useUserStore} from "@/stores/user.store.js";
 
 import {mapActions} from 'vuex'
 import {
@@ -16,8 +16,11 @@ import {
 
 
 export default {
+  setup(){
+    const userStore = useUserStore();
+    return{userStore};
+  },
   components: {
-    Carousel,
   },
   data() {
     return {
@@ -29,10 +32,8 @@ export default {
       isAuthError: false,
       processing: false,
       showInput:false,
-      dataBanner: ref([]),
-      urlLogo:null,
-      typeBanner: 'banner-login',
-      typeLogo: 'logo-login',
+      rememberMe: true,
+      csrfToken: ""
     };
   },
   validations: {
@@ -46,62 +47,59 @@ export default {
   },
   created(){
     this.getData();
-    this.getDataLogo();
   },
   computed: {
-    ...mapActions('data', ['initializeData','getSetting']),
-    ...mapActions('auth', ['setPem']),
-   
+
   },
   methods: {
-    ...authMethods,
-    ...notificationMethods,
-      signinapi() {
+      async signinapi() {
       this.authError = null;
       this.processing = true;
       this.isAuthError = false;
-      this.$store.dispatch("auth/login", {email:this.email,password:this.password}).then(
-        () => {
-           this.$router.push("/");
-           this.initializeData;
-           this.getSetting;
-
-           this.processing = false;
-
-        },
-        (error) => {
-          this.processing = false;   
-          this.isAuthError = true;
-          try{
-            if(error.response.data.data==undefined){
-              this.authError = error.message
-            }else{
-              this.authError = error.response.data.data
-            }
-          }catch(e){
-            this.authError = 'Network error'
+      try {
+          let isAuth = await this.userStore.login({email:this.email,password:this.password,_token: this.csrfToken});
+          if(isAuth){
+            alert(isAuth)
+            this.$router.push("/");
+            this.processing = false;
           }
-        }
-      );
+      }catch (e) {
+          alert(e)
+          this.authError = 'Network error'
+      }
+
+
+      //   response.then(
+      //   (response) => {
+      //     this.userStore.setUser(JSON.stringify(response.data.data.user));
+      //
+      //      this.$router.push("/");
+      //      this.processing = false;
+      //   },
+      //   (error) => {
+      //     this.processing = false;
+      //     this.isAuthError = true;
+      //     try{
+      //       if(error.response.data.data==undefined){
+      //         this.authError = error.message
+      //       }else{
+      //         this.authError = error.response.data.data
+      //       }
+      //     }catch(e){
+      //       console.log(e)
+      //       this.authError = 'Network error'
+      //     }
+      //   }
+      // );
       },
       getData(){
           const  conditionsBanner = {
             status: 1,
             type: this.typeBanner
         };
-        uploadPhotoService.getBanner(conditionsBanner).then((response)=>{
-          this.dataBanner = response.data.data;
-        })
-      },
-      async getDataLogo() {
-        try {
-          const response = await uploadPhotoService.getItem(this.typeLogo);
-          if(response.data.data){
-            this.urlLogo= this.imageLink(this.typeLogo+'/'+response.data.data.name_file);
-          }
-        } catch (error) {
-          console.error('Error while fetching data:', error);
-        }
+        axios.get('/api/sanctum/csrf-cookie').then(response => {
+          this.csrfToken = response.csft_token
+        });
       },
     }
 };
@@ -111,41 +109,33 @@ export default {
   <div class="auth-page-wrapper">
     <div class="auth-page-content bg-dark">
       <BRow>
-        <BCol class="mt-0 px-0 d-none d-sm-block" lg="8" xl="8 "  md="8 ">
-          <div class="banner-login">
-            <div v-if="this.dataBanner.length">
-              <Carousel :value="this.dataBanner" :numVisible="1" :numScroll="1" circular:false :autoplayInterval="3000"  :showNavigators="false" :showIndicators="false">
-                <template #item="slotProps">
-                    <div class="">
-                      <div v-if="slotProps.data.link" >
-                          <router-link :to="slotProps.data.link" class="text-reset">
-                            <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />
-                          </router-link>
-                      </div>
-                      <div v-else >
-                          <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />
-                      </div>
-                    </div>
-                </template>
-              </Carousel>
-            </div>
-            <div v-else></div>
-          </div>
-        </BCol>
-        <BCol md="4" lg="4" xl="4" class="p-0">
+<!--        <BCol class="mt-0 px-0 d-none d-sm-block" lg="8" xl="8 "  md="8 ">-->
+<!--          <div class="banner-login">-->
+<!--            <div v-if="this.dataBanner.length">-->
+<!--              <Carousel :value="this.dataBanner" :numVisible="1" :numScroll="1" circular:false :autoplayInterval="3000"  :showNavigators="false" :showIndicators="false">-->
+<!--                <template #item="slotProps">-->
+<!--                    <div class="">-->
+<!--                      <div v-if="slotProps.data.link" >-->
+<!--                          <router-link :to="slotProps.data.link" class="text-reset">-->
+<!--                            <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />-->
+<!--                          </router-link>-->
+<!--                      </div>-->
+<!--                      <div v-else >-->
+<!--                          <img :src="this.imageLink(this.typeBanner+'/'+slotProps.data.name_file)" :alt="slotProps.data.link" class="w-full h-full" />-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                </template>-->
+<!--              </Carousel>-->
+<!--            </div>-->
+<!--            <div v-else></div>-->
+<!--          </div>-->
+<!--        </BCol>-->
+        <BCol md="6" lg="4" xl="3" class="p-0 mx-auto">
           <BCard no-body class="p-4 bg-login">
-              <div class="text-center mb-4 text-white-50">
-                <div>
-                  <router-link to="/" class="d-inline-block auth-logo">
-                    <img :src="this.urlLogo" alt="" width="250" style="max-width:100%;"  />
-                  </router-link>
-                </div>
-              </div>
               <div class="text-center mt-2 title-login">
-                <h2 class="m-0">CÔNG TY CỔ PHẦN TM VÀ DV DU LỊCH VIETNAM TOURIST</h2>
                 <p class="m-0 mt-4 text-uppercase">Sign in to continue to system.</p>
               </div>
-              <div class="p-2 mt-4">
+              <div class="p-2 mt-4 w-100">
                 <BAlert v-model="isAuthError" v-if="isAuthError==true" variant="danger" class="mt-3" dismissible v-html="authError"></BAlert>
                 <form @submit.prevent="tryToLogIn">
                   <div class="mb-3">
@@ -174,7 +164,7 @@ export default {
                     </div>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="auth-remember-check" />
+                    <input class="form-check-input" type="checkbox" value="" id="auth-remember-check" v-model="rememberMe"/>
                     <label class="form-check-label" for="auth-remember-check">Remember me</label>
                   </div>
                   <div class="mt-4">

@@ -2,14 +2,37 @@
 import Layout from "@/layouts/main.vue";
 import PageHeader from "@/components/page-header";
 import Panel from "@/views/settings/components/Panel.vue";
+
+import { useExamStore } from '@/stores/exam';
+
 export default {
+  computed: {
+    count() {
+      return this.examStore.count;
+    },
+    message() {
+      return this.examStore.message;
+    },
+    doubleCount() {
+      return this.examStore.doubleCount;
+    }
+  },
+  created(){
+    this.examStore =  useExamStore();
+  },
   components: {
     Panel,
     Layout,
     PageHeader,
   },
-  methods: {
 
+  methods: {
+    increment() {
+      this.examStore.increment();
+    },
+    updateMessage() {
+      this.examStore.setMessage('New message from component!');
+    }
 
   },
   data(){
@@ -211,6 +234,13 @@ export default {
   <Layout>
     <PageHeader title="Settings" pageTitle="Dashboard" />
     <BContainer fluid>
+      <div>
+    <p>{{ message }}</p>
+    <p>Count: {{ count }}</p>
+    <p>Double Count: {{ doubleCount }}</p>
+    <button @click="increment">Increment</button>
+    <button @click="updateMessage">Update Message</button>
+  </div>
       <div class="row">
         <Panel :panel-items="systemPanel"/>
         <Panel :panel-items="organizationPanel"/>

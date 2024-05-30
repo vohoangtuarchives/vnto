@@ -39,8 +39,16 @@ export default {
         { name: this.$t("khong"), value: 0, severity: "danger" },
       ]),
       isLoading: false,
-      nameRouterAdd: "settings.price_rule.add",
-      nameRouterEdit: "settings.price_rule.edit",
+      arrayLink:[
+        {
+          name: 'add',
+          route: 'settings.price_rule.add',
+        },
+        {
+          name: 'edit',
+          route: 'settings.price_rule.edit',
+        },
+      ]
     };
   },
   setup() {
@@ -57,11 +65,9 @@ export default {
     />
     <BCard>
       <TableData
-        typeMan="doitruong"
-        :services="this.service"
+        :services="service"
         :columShow="columShow"
-        :nameRouterAdd="this.nameRouterAdd"
-        :nameRouterEdit="this.nameRouterEdit"
+        :arrayLink="arrayLink"
       />
     </BCard>
   </Layout>

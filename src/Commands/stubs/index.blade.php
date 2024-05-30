@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laravel</title>
-    <script src="build/{{ $script }}" type="module"></script>
-    <link rel="stylesheet" href="build/{{ $style }}">
+    <script src="{{ $script }}" type="module"></script>
+    <link rel="stylesheet" href="{{ $style }}">
 </head>
 <body>
 <div id="app"></div>

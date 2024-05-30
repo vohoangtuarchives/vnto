@@ -4,7 +4,7 @@ import simplebar from "simplebar-vue";
 
 import {
   layoutComputed
-} from "@/state/helpers";
+} from "@/stores/helpers";
 import Menu from "@/components/menu.vue";
 import NavBar from "@/components/nav-bar";
 import RightBar from "@/components/right-bar";

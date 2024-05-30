@@ -26,6 +26,13 @@ export default {
             component: () => import (
                 "@/views/timesheet/pages/edit-working-shifts.vue"
                 )
+        },
+        {
+            path: "/timesheet/shift-plan",
+            name: "timesheet.shift-plan.view",
+            component: () => import (
+                "@/views/timesheet/pages/shift-plan.vue"
+                )
         }
 
     ]

@@ -1,10 +1,11 @@
 <script>
 import {
   layoutComputed
-} from "@/state/helpers";
+} from "@/stores/helpers";
 import router from '@/router'; 
 import store from "@/state/store";
 import tokenService from '@/services/token.service';
+
 export default {
   data() {
     return {
@@ -431,7 +432,7 @@ export default {
         <li class="nav-item">
           <BLink class="nav-link menu-link" href="#sidebarPosts" data-bs-toggle="collapse" role="button"
                  aria-expanded="false" aria-controls="sidebarPosts">
-            <i class="ri-file-paper-2-fill"></i>
+                 <i class="ri-file-list-3-line"></i>
             <span data-key="t-timesheet">{{ $t("t-hanhchinhnhanhsu") }}</span>
           </BLink>
           <div class="collapse menu-dropdown" id="sidebarPosts">

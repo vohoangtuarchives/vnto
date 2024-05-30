@@ -1,7 +1,7 @@
 <script>
 import router from "@/router";
 import simplebar from "simplebar-vue";
-import { layoutComputed } from "@/state/helpers";
+import { layoutComputed } from "@/stores/helpers";
 
 import NavBar from "@/components/nav-bar";
 import Menu from "@/components/menu.vue";

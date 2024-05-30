@@ -118,7 +118,7 @@ export default {
     <PageHeader :title="`${$t('quanly')} ${this.title}`" pageTitle="Dashboard" />
     <BRow>
       <BCol lg="12">
-          <BCard no-body class="mt-n4 mx-n4">
+          <BCard no-body class="">
               <div class="bg-warning-subtle">
                   <BCardBody class="pb-0 px-4">
                       <BRow class="mb-3 align-items-center">

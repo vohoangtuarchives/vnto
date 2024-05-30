@@ -1,11 +1,14 @@
 import { createWebHistory, createRouter } from "vue-router";
+import {useAuthStore} from "@/stores/auth.store";
 import routes from './routes';
-import store from "@/state/store";
 import appConfig from "../../app.config";
 import TokenService from "@/services/token.service";
 import api from "@/services/api";
 import NProgress from 'nprogress';
-const pem =  store.getters['auth/getPem'];
+
+
+
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -18,9 +21,10 @@ const router = createRouter({
     }
   },
 });
+
+
 router.beforeEach(async (routeTo, routeFrom, next) => {
   NProgress.start();
-  
   const authRequired = routeTo.matched.some((route) => route.meta.authRequired);
   if (!authRequired) {
     return next();
@@ -30,7 +34,8 @@ router.beforeEach(async (routeTo, routeFrom, next) => {
   //   // Kiểm tra xem người dùng đã đăng nhập hay chưa
   //   // const response = await api.get('auth/check');
   //   // TokenService.setPem(response.data.data);
-  //   // await store.dispatch('auth/setPem');
+  //   // await authStore.setPem();
+  //
   //
   //
   //
@@ -77,10 +82,6 @@ router.beforeEach((routeTo, routeFrom, next) => {
 });
 
 router.beforeResolve(async (routeTo, routeFrom, next) => {
-  console.log("ROUTER TO:",routeTo.name);
-
-    // Start the route progress bar.
-
   try {
     
     for (const route of routeTo.matched) {
@@ -88,7 +89,6 @@ router.beforeResolve(async (routeTo, routeFrom, next) => {
       
         if (route.meta && route.meta.beforeResolve) {
           route.meta.beforeResolve(routeTo, routeFrom, (...args) => {
-           
             if (args.length) {
            
               next(...args);
@@ -111,6 +111,9 @@ router.beforeResolve(async (routeTo, routeFrom, next) => {
   // If we reach this point, continue resolving the route.
   next();
 });
+
+
+
 router.afterEach(() => {
   NProgress.done()
 })

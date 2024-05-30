@@ -216,8 +216,8 @@
     "t-sangkien":"Sáng kiến",
     "t-binhchon":"Bình chọn",
     "t-regulation":"Quy định ban hành",
-    "t-decision":"Các quyết định",
-    "t-notification":"Các thông báo",
+    "t-decision":"Quyết định",
+    "t-notification":"Thông báo",
     "t-power-of-attorney":"Giấy ủy quyền",
     "t-about":"Giới thiệu",
     "t-rules":"Nội quy",
@@ -249,7 +249,7 @@
     "file_attached":"Tải thêm tệp tin",
     "file_uploaded":"Tệp đã tải lên",
     "themoithanhcong":"Thêm mới thành công",
-    "dangcapnhat":"Đang cập nhật ",
+    "dangcapnhat":"Đang cập nhật ...",
     "chuacofilenao":"Chưa có file nào ",
     "thongtincoban":"Thông tin cơ bản",
     "thaydoimatkhau":"Thay đổi mật khẩu",
@@ -696,7 +696,7 @@
                 "notEmpty": "không được để trống",
                 "notEmptyName": "không được để trống Tên ca",
                 "notEmptyCode": "không được để trống Mã ca",
-                "notEmptyStartTime": "không được để trống Giờ bắt đầu "
+                "notEmptyStartTime": "không được để trống Giờ bắt đầu"
             }
         }
     }, 

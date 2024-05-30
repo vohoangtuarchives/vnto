@@ -37,6 +37,12 @@ class User extends BaseModel  implements
         'name',
         'email',
         'password',
+        'allow_login',
+        'info',
+        'code',
+        'birthday',
+        'avatar',
+        'phone'
     ];
 
     /**

@@ -15,11 +15,21 @@
 </template>
 <script>
   import PanelLinkItem from "@/views/settings/components/PanelLinkItem.vue";
+  import {mapActions} from "pinia";
+  import {useActionStore} from "@/stores/action.store";
+  
+
 
   export default {
     components: {PanelLinkItem},
     props: {
       panelItems: Object
+    },
+    setup() {
+
+    },
+    methods:{
+      ...mapActions(useActionStore, ["canLink"])
     },
     data(){
       return {

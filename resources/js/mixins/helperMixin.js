@@ -1,7 +1,5 @@
 import moment from "moment";
 import appConfig from "@/configs/app.config";
-import store from "@/state/store";
-import routes from "@/router/routes";
 
 export default {
     methods: {
@@ -42,49 +40,9 @@ export default {
         return foundRouter;
     },
     
-    canAny(listPermission){
-      let pem = store.getters['auth/getPem'];
-      if(pem.includes('*'))
-          return true;
-      return listPermission.some(permission => pem.includes(permission));
-    },
-    canAll(listPermission){
-      let pem = store.getters['auth/getPem'];
-      if(pem.includes('*'))
-          return true;
-      console.log(pem);
-
-     return listPermission.every(permission => pem.includes(permission));
-    },
-    can(action){
-      let pem = store.getters['auth/getPem'];
-      if(pem.includes('*'))
-          return true;
-      let rs = pem.includes(action);
-      return rs;
-    },
-    canLink(routerName){
-      let pem = store.getters['auth/getPem'];
-      if(pem.includes('*'))
-          return true;
-      let find = this.findRouterByName(routes,routerName);
-      let next = true;
-      console.error("fid",find)
-      
-        if(find && find.meta && find.meta.requiredRoles){
-            next = find.meta.requiredRoles.every(role => pem.includes(role));
-        }
-      
-     return next;
-      
-    },
-  
-     
-      
       changeParams(router, newParams) {
         const currentRoute = router.currentRoute.value;
         const query = { ...currentRoute.query, ...newParams };
-      
         router.replace({ query: query }).catch(err => {
           if (err.name !== 'NavigationDuplicated') {
             console.error(err);

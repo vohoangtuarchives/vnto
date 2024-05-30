@@ -72,4 +72,5 @@ abstract class BaseController extends Controller implements ControllerContract {
         ];
         return $this->apiResponse(null, $errors);
     }
+
 }

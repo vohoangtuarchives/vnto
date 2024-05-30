@@ -2,7 +2,8 @@
 import Layout from "@/layouts/main.vue";
 import PageHeader from "@/components/page-header";
 import {ref,reactive} from "vue";
-
+import {mapActions} from "pinia";
+import {useActionStore} from "@/stores/action.store";
 import {ModalSize} from "vue-bs-modal";
 import Skeleton from 'primevue/skeleton';
 import DepartmentService from "@/services/department.service";
@@ -74,6 +75,7 @@ export default {
     this.getData();
   },
   methods: {
+    ...mapActions(useActionStore, ["can"]),
     onSearch(){
       this.getData({
         page: 1,

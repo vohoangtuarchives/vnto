@@ -18,10 +18,10 @@ const store = new Vuex.Store({
   modules,
 });
 try {
-  store.dispatch('data/initializeData');
-  store.dispatch('data/getSetting');
-  store.dispatch('user/getUserList');
-  store.dispatch('auth/setPem');
+  // store.dispatch('data/initializeData');
+  // store.dispatch('data/getSetting');
+  // store.dispatch('user/getUserList');
+  // store.dispatch('auth/setPem');
 
 } catch (error) {
   console.error('Login:', error);

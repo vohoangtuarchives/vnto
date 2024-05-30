@@ -4,7 +4,13 @@ class TokenService {
      
       return user?.refresh_token;
     }
-  
+    getUser() {
+        return JSON.parse(localStorage.getItem("user"));
+    }
+
+    setUser(user) {
+        localStorage.setItem("user", JSON.stringify(user));
+    }
     getLocalAccessToken() {
 
       const user = this.getUser();
@@ -33,13 +39,7 @@ class TokenService {
   
       localStorage.setItem("user", JSON.stringify(storage));
     }
-    getUser() {
-      return JSON.parse(localStorage.getItem("user"));
-    }
-   
-    setUser(user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    }
+
     getPem() {
       return JSON.parse(localStorage.getItem("pem"));
     }

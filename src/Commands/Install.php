@@ -53,11 +53,15 @@ class Install extends Command
         }
 
         $manifest = json_decode(file_get_contents(public_path("build/manifest.json")), true);
-
+        $preBuild = "build/";
+        $script = $preBuild . $manifest['resources/js/app.js']['file'];
+        if(File::exists(public_path("hot"))) {
+            $script = "http://localhost:5173/resources/js/app.js";
+        }
 
        $content = View::file(__DIR__ . "/stubs/index.blade.php")->with([
-           'script' => $manifest['resources/js/app.js']['file'],
-           'style' => $manifest['resources/js/app.js']['css'][0],
+           'script' => $script,
+           'style' => $preBuild . $manifest['resources/js/app.js']['css'][0],
        ])->render();
 
        file_put_contents($file, $content);
